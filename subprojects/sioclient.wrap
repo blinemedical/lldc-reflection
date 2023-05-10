@@ -1,0 +1,10 @@
+[wrap-git]
+directory=sioclient
+url=https://github.com/socketio/socket.io-client-cpp
+revision=3.1.0
+clone-recursive=true
+patch_directory=sioclient
+depth=1
+
+[provide]
+dependency_names = sioclient

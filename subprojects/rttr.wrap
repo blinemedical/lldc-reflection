@@ -1,0 +1,7 @@
+[wrap-git]
+directory=rttr
+url=https://github.com/rttrorg/rttr
+revision=7edbd58
+
+[provide]
+dependency_names = rttr, rttr_core

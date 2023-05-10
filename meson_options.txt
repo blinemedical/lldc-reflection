@@ -1,0 +1,4 @@
+option('socketio', type: 'boolean', value: 'false',
+  description: 'If SocketIO-Client C++ is not found, build and use it')
+option('jsonglib', type: 'boolean', value: 'false',
+  description: 'If JsonGLIB is not found, build and use it')

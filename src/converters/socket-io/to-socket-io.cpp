@@ -1,0 +1,300 @@
+/**
+ * Copyright 2023 Laerdal Labs, DC
+ *   Author: Thomas Goodwin <thomas.goodwin@laerdal.com>
+ *
+ * This is derived from the RTTR Json example app which utilized
+ * rapidjson for its backend and the lldc_appsync variation which
+ * utilized JsonGLIB for its incarnation.
+ */
+
+#include <lldc-rttr/converters/socket-io.h>
+#include <lldc-rttr/metadata/metadata.h>
+#include <lldc-rttr/exceptions/exceptions.h>
+
+#include "private/associative-containers.h"
+
+namespace AC = lldc::rttr::associative_containers;
+namespace METADATA = lldc::rttr::metadata;
+
+using sio_object = std::map<std::string, ::sio::message::ptr>;
+using sio_array = std::vector<::sio::message::ptr>;
+
+
+namespace lldc::rttr::converters {
+
+static bool to_socket_io_recursive(const ::rttr::instance &rttr_obj, sio_object &object);
+static bool write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool optional=false);
+static bool attempt_write_fundamental_type (const ::rttr::type &t, const ::rttr::variant &var, ::sio::message::ptr &member, bool optional=false);
+static bool write_array (const ::rttr::variant_sequential_view &view, ::sio::message::ptr &member, bool optional=false);
+static bool write_associative_container (const ::rttr::variant_associative_view &view, ::sio::message::ptr &member, bool optional=false);
+
+
+inline bool is_optional (const ::rttr::property &p) {
+  return p.get_metadata(metadata::OPTIONAL).is_valid();
+}
+
+inline bool do_not_serialize(const ::rttr::property &p) {
+  return p.get_metadata(metadata::NO_SERIALIZE).is_valid();
+}
+
+inline bool treat_as_blob(const ::rttr::property &p) {
+  return p.get_metadata(metadata::BLOB).is_valid();
+}
+
+inline bool treat_string_as_optional(const std::string &s, bool optional) {
+  return ((s.length() == 0 && optional));
+}
+
+inline bool is_fundamental_type(const ::rttr::type &t) {
+  return ((t.is_arithmetic() || t.is_enumeration() || (t == ::rttr::type::get<std::string>())));
+}
+
+static bool
+to_socket_io_recursive(const ::rttr::instance &obj2, sio_object &object)
+{
+  bool did_write = false;
+  ::rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
+
+  auto prop_list = obj.get_derived_type().get_properties();
+  for (auto prop : prop_list)
+  {
+    const auto name = prop.get_name();
+    ::rttr::variant prop_value = prop.get_value(obj);
+    bool optional = is_optional(prop);
+
+    if (!prop_value)
+      continue; // cannot serialize, unable to retrieve value
+    if (do_not_serialize(prop))
+      continue; // skip it
+
+    ::sio::message::ptr member;
+    if (write_variant(prop_value, member, optional)) {
+      did_write = true;
+      object[name.to_string()] = member;
+    }
+    else if (!optional) {
+      // Failed write and not optional -> error condition
+      throw exceptions::RequiredMemberSerializationFailure();
+    }
+  }
+
+  return did_write;
+}
+
+static bool
+write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool optional)
+{
+  bool did_write = false;
+
+  // Deal with wrapped types.
+  ::rttr::variant localVar = var;
+  ::rttr::type varType = var.get_type();
+  if (varType.is_wrapper()) {
+    varType = varType.get_wrapped_type();
+    localVar = localVar.extract_wrapped_value();
+  }
+
+  if (is_fundamental_type(varType)) {
+    did_write = attempt_write_fundamental_type(varType, localVar, member, optional);
+  }
+  else if (var.is_sequential_container()) {
+    did_write = write_array(var.create_sequential_view(), member, optional);
+  }
+  else if (var.is_associative_container()) {
+    did_write = write_associative_container(var.create_associative_view(), member, optional);
+  }
+  else {
+    // Not fundamental or container -- treat as object.
+    auto temp = ::sio::object_message::create();
+    to_socket_io_recursive(var, temp->get_map());
+    member.swap(temp);
+    did_write = true;
+  }
+
+  return did_write;
+}
+
+static bool
+attempt_write_fundamental_type(
+  const ::rttr::type &t,
+  const ::rttr::variant &var,
+  ::sio::message::ptr &member,
+  bool optional)
+{
+  bool did_write = false;
+
+  if (t.is_arithmetic()) {
+    // Is a Number
+    if (t == ::rttr::type::get<bool>()) {
+      member = ::sio::bool_message::create(var.to_bool());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<char>()) {
+      // This char->bool is from the original and seems odd, to
+      // munge the type like this, but I'm keeping it.
+      member = ::sio::bool_message::create(var.to_bool());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<int>()) {
+      member = ::sio::int_message::create(var.to_int());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<int8_t>()) {
+      member = ::sio::int_message::create(var.to_int8());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<int16_t>()) {
+      member = ::sio::int_message::create(var.to_int16());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<int32_t>()) {
+      member = ::sio::int_message::create(var.to_int32());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<int64_t>()) {
+      member = ::sio::int_message::create(var.to_int64());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<uint8_t>()) {
+      member = ::sio::int_message::create(var.to_uint8());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<uint16_t>()) {
+      member = ::sio::int_message::create(var.to_uint16());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<uint32_t>()) {
+      member = ::sio::int_message::create(var.to_uint32());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<uint64_t>()) {
+      member = ::sio::int_message::create(var.to_uint64());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<float>() || t == ::rttr::type::get<double>()) {
+      member = ::sio::double_message::create(var.to_double());
+      did_write = true;
+    }
+  }
+  else if (t.is_enumeration()) {
+    // Enumeration as a string
+    // Attempt to serialize it as a string
+    bool ok = false;
+    auto result = var.to_string(&ok);
+
+    if (ok && !treat_string_as_optional(result, optional)) {
+      member = ::sio::string_message::create(var.to_string());
+      did_write = true;
+    }
+    else {
+      // Attempt treating as a number
+      auto value = var.to_uint64(&ok);
+      if (ok)
+        member = ::sio::int_message::create(value);
+      else
+        member = ::sio::null_message::create();
+    }
+    did_write = true;
+  }
+  else if (t == ::rttr::type::get<std::string>()) {
+    auto result = var.to_string();
+
+    if (!treat_string_as_optional(result, optional)) {
+      if (t.get_metadata(METADATA::BLOB).is_valid()) {
+        member = ::sio::binary_message::create(std::make_shared<std::string>(result));
+      }
+      else {
+        member = ::sio::string_message::create(result);
+      }
+      did_write = true;
+    }
+  }
+
+  return did_write;
+}
+
+static bool
+write_array (
+  const ::rttr::variant_sequential_view &view,
+  ::sio::message::ptr &member,
+  bool optional)
+{
+  if (optional && view.get_size() == 0)
+    return false; // Don't bother serializing
+
+  member = sio::array_message::create();
+
+  for (const auto& item : view) {
+    auto entry = ::sio::message::ptr();
+    if (write_variant(item, entry, optional)) {
+      member->get_vector().push_back(entry);
+    }
+  }
+  return true;
+}
+
+static bool
+write_associative_container (
+  const ::rttr::variant_associative_view &view,
+  ::sio::message::ptr &member,
+  bool optional)
+{
+  if (optional && view.get_size() == 0)
+    return false;
+
+  auto array = sio::array_message::create();
+
+  // From the original source code comments:
+  //   "Dealing with keys = values containers like sets"
+  // However the RTTR docs say this method returns TRUE if the
+  // associative container is like a set, where it only contains
+  // keys.
+  if (view.is_key_only_type()) {
+    for (auto& item : view) {
+      ::sio::message::ptr element;
+      if (write_variant(item.first, element)) {
+        array->get_vector().push_back(element);
+      }
+    }
+  }
+  else {
+    // Original is pretty clearly doing this:
+    //   vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    // [ {'key': <key>, 'value': <value>}, ... ]
+    for (auto& item : view) {
+      ::sio::message::ptr key;
+      ::sio::message::ptr value;
+
+      if (write_variant(item.first, key) && write_variant(item.second, value)) {
+        auto obj = sio::object_message::create();
+        obj->get_map()[AC::KEY] = key;
+        obj->get_map()[AC::VALUE] = value;
+
+        array->get_vector().push_back(obj);
+      }
+    }
+  }
+
+  // Even if it's empty, it's okay because we've established
+  // it's !optional.
+  member = array;
+  return true;
+}
+
+::sio::message::ptr
+to_socket_io (::rttr::instance object)
+{
+  ::sio::message::ptr out;
+  out.reset();
+
+  if (object.is_valid()) {
+    auto temp = ::sio::object_message::create();
+    if (to_socket_io_recursive(object, temp->get_map())) {
+      out = temp;
+    }
+  }
+
+  return std::move(out);
+}
+
+}; // lldc::rttr::converters
