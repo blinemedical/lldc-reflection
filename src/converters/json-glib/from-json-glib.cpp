@@ -6,17 +6,17 @@
  * in the RTTR library.
  */
 
-#include <lldc-rttr/converters/json-glib.h>
-#include <lldc-rttr/metadata/metadata.h>
-#include <lldc-rttr/exceptions/exceptions.h>
+#include <lldc-reflection/converters/json-glib.h>
+#include <lldc-reflection/metadata/metadata.h>
+#include <lldc-reflection/exceptions/exceptions.h>
 
 #include "private/associative-containers.h"
 
-namespace AC = lldc::rttr::associative_containers;
-namespace METADATA = lldc::rttr::metadata;
-namespace EXCEPTIONS = lldc::rttr::exceptions;
+namespace AC = lldc::reflection::associative_containers;
+namespace METADATA = lldc::reflection::metadata;
+namespace EXCEPTIONS = lldc::reflection::exceptions;
 
-namespace lldc::rttr::converters {
+namespace lldc::reflection::converters {
 
 static void from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2);
 static void write_array_recursively (JsonArray *arr, ::rttr::variant_sequential_view &view);
@@ -252,4 +252,4 @@ namespace json_glib {
   }
 }; // json_glib
 
-}; // lldc::rttr::converters
+}; // lldc::reflection::converters

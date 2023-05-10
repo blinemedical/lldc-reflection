@@ -26,4 +26,5 @@
 #pragma once
 
 #include <rttr/registration>
-#include <lldc-rttr/metadata/metadata.h>
+#include <lldc-reflection/metadata/metadata.h>
+#include <lldc-reflection/exceptions/exceptions.h>

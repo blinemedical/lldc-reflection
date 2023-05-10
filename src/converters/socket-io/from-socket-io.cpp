@@ -10,17 +10,17 @@
 #include <iostream>
 #include <format>
 
-#include <lldc-rttr/converters/socket-io.h>
-#include <lldc-rttr/metadata/metadata.h>
-#include <lldc-rttr/exceptions/exceptions.h>
+#include <lldc-reflection/converters/socket-io.h>
+#include <lldc-reflection/metadata/metadata.h>
+#include <lldc-reflection/exceptions/exceptions.h>
 
 #include "private/associative-containers.h"
 
-namespace AC = lldc::rttr::associative_containers;
-namespace METADATA = lldc::rttr::metadata;
-namespace EXCEPTIONS = lldc::rttr::exceptions;
+namespace AC = lldc::reflection::associative_containers;
+namespace METADATA = lldc::reflection::metadata;
+namespace EXCEPTIONS = lldc::reflection::exceptions;
 
-namespace lldc::rttr::converters {
+namespace lldc::reflection::converters {
 
 using sio_object = std::map<std::string, ::sio::message::ptr>;
 using sio_array = std::vector<::sio::message::ptr>;
@@ -228,4 +228,4 @@ from_socket_io (const ::sio::message::ptr message, ::rttr::instance object)
   return success;
 }
 
-}; // lldc::rttr::converters
+}; // lldc::reflection::converters

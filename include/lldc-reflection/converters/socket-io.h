@@ -4,12 +4,11 @@
  */
 #pragma once
 
-#include <lldc-rttr/api.h>
-#include <lldc-rttr/exceptions/exceptions.h>
+#include <lldc-reflection/api.h>
+#include <lldc-reflection/registration.h>
 #include <sio_message.h>
-#include <rttr/registration>
 
-namespace lldc::rttr::converters {
+namespace lldc::reflection::converters {
 
 /**
  * @brief Convert the #object to an sio::message::ptr instance
@@ -17,7 +16,7 @@ namespace lldc::rttr::converters {
  * @param object the registered reference object
  * @return sio::message::ptr the resulting message, if successfully converted
  */
-LLDC_RTTR_API
+LLDC_REFLECTION_API
 ::sio::message::ptr to_socket_io (::rttr::instance object);
 
 /**
@@ -28,7 +27,7 @@ LLDC_RTTR_API
  * @return true if parsing was successful
  * @return false if prasing wass unsuccessful
  */
-LLDC_RTTR_API
+LLDC_REFLECTION_API
 bool from_socket_io (const ::sio::message::ptr message, ::rttr::instance object);
 
 }; // lldc::rttr::converters

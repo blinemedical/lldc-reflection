@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include <lldc-rttr/api.h>
 #include <exception>
 
-namespace lldc::rttr::exceptions {
+namespace lldc::reflection::exceptions {
 
 /**
  * @brief This exception type represents when an object has a member
@@ -29,4 +28,4 @@ struct RequiredMemberSerializationFailure : public std::exception {
   }
 };
 
-}; //lldc::rttr::exceptions
+}; //lldc::reflection::exceptions

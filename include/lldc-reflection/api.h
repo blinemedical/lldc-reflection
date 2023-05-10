@@ -9,22 +9,18 @@
  */
 #pragma once
 
-#include "lldc-rttr/config.h"
+#include "lldc-reflection/config.h"
 
-#if !defined(__LLDC_RTTR_INSIDE__) && !defined(LLDC_RTTR_COMPILATION)
-#error "Do not include api.h directly."
+#ifndef LLDC_REFLECTION_EXPORT
+#define LLDC_REFLECTION_EXPORT extern
 #endif
 
-#ifndef LLDC_RTTR_EXPORT
-#define LLDC_RTTR_EXPORT extern
+#ifndef LLDC_REFLECTION_IMPORT
+#define LLDC_REFLECTION_IMPORT
 #endif
 
-#ifndef LLDC_RTTR_IMPORT
-#define LLDC_RTTR_IMPORT
-#endif
-
-#ifdef LLDC_RTTR_COMPILATION
-#define LLDC_RTTR_API LLDC_RTTR_EXPORT
+#ifdef LLDC_REFLECTION_COMPILATION
+#define LLDC_REFLECTION_API LLDC_REFLECTION_EXPORT
 #else
-#define LLDC_RTTR_API LLDC_RTTR_IMPORT
+#define LLDC_REFLECTION_API LLDC_REFLECTION_IMPORT
 #endif

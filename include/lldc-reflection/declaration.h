@@ -16,7 +16,13 @@
  *
  *     RTTR_ENABLE(Something);
  *   };
+ *
+ * The 'registration_friend' header is included in the event you
+ * need to declare a class that will use RTTR_REGISTRATION_FRIEND
+ * to permit registration to access non-public members of the
+ * object in question.
  */
 #pragma once
 
 #include <rttr/type>
+#include <rttr/registration_friend>

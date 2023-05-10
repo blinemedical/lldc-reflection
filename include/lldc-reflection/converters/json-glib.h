@@ -4,24 +4,23 @@
  */
 #pragma once
 
-#include <lldc-rttr/api.h>
-#include <lldc-rttr/exceptions/exceptions.h>
+#include <lldc-reflection/api.h>
+#include <lldc-reflection/registration.h>
 #include <json-glib/json-glib.h>
-#include <rttr/registration>
 
-namespace lldc::rttr::converters {
-  LLDC_RTTR_API
+namespace lldc::reflection::converters {
+  LLDC_REFLECTION_API
   JsonNode* to_json_glib (::rttr::instance obj);
 
-  LLDC_RTTR_API
+  LLDC_REFLECTION_API
   bool from_json_glib (JsonNode *node, ::rttr::instance obj);
 
   namespace json_glib {
-    LLDC_RTTR_API
+    LLDC_REFLECTION_API
     std::string to_json (::rttr::instance obj);
 
-    LLDC_RTTR_API
+    LLDC_REFLECTION_API
     bool from_json (const std::string &json_str, ::rttr::instance obj);
   };
 
-}; // lldc::json_utils
+}; // lldc::reflection::converters

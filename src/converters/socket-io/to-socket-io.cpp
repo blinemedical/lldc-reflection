@@ -7,20 +7,20 @@
  * utilized JsonGLIB for its incarnation.
  */
 
-#include <lldc-rttr/converters/socket-io.h>
-#include <lldc-rttr/metadata/metadata.h>
-#include <lldc-rttr/exceptions/exceptions.h>
+#include <lldc-reflection/converters/socket-io.h>
+#include <lldc-reflection/metadata/metadata.h>
+#include <lldc-reflection/exceptions/exceptions.h>
 
 #include "private/associative-containers.h"
 
-namespace AC = lldc::rttr::associative_containers;
-namespace METADATA = lldc::rttr::metadata;
+namespace AC = lldc::reflection::associative_containers;
+namespace METADATA = lldc::reflection::metadata;
 
 using sio_object = std::map<std::string, ::sio::message::ptr>;
 using sio_array = std::vector<::sio::message::ptr>;
 
 
-namespace lldc::rttr::converters {
+namespace lldc::reflection::converters {
 
 static bool to_socket_io_recursive(const ::rttr::instance &rttr_obj, sio_object &object);
 static bool write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool optional=false);
@@ -297,4 +297,4 @@ to_socket_io (::rttr::instance object)
   return std::move(out);
 }
 
-}; // lldc::rttr::converters
+}; // lldc::reflection::converters

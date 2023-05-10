@@ -9,16 +9,16 @@
 #include <string_view>
 #include <json-glib/json-glib.h>
 
-#include <lldc-rttr/converters/json-glib.h>
-#include <lldc-rttr/metadata/metadata.h>
-#include <lldc-rttr/exceptions/exceptions.h>
+#include <lldc-reflection/converters/json-glib.h>
+#include <lldc-reflection/metadata/metadata.h>
+#include <lldc-reflection/exceptions/exceptions.h>
 
 #include "private/associative-containers.h"
 
-namespace AC = lldc::rttr::associative_containers;
-namespace METADATA = lldc::rttr::metadata;
+namespace AC = lldc::reflection::associative_containers;
+namespace METADATA = lldc::reflection::metadata;
 
-namespace lldc::json_utils {
+namespace lldc::reflection::converters {
 
 static bool to_json_recursive(const ::rttr::instance &obj2, JsonObject *object);
 static bool write_variant (const ::rttr::variant &var, JsonNode *node, bool optional = false);
@@ -298,4 +298,4 @@ namespace json_glib {
   }
 }; // json_glib
 
-}; // lldc::rttr::converters
+}; // lldc::reflection::converters

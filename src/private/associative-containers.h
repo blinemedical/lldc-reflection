@@ -9,13 +9,13 @@
  * key and value will be stored, as members of the object
  * (i.e., 'key' and 'value' in the above example).
  *
- * Define the LLDC_RTTR_ASSOCIATIVE_CONTAINER_KEY and/or
- * LLDC_RTTR_ASSOCIATIVE_CONTAINER_VALUE when compiling
+ * Define the LLDC_REFLECTION_ASSOCIATIVE_CONTAINER_KEY and/or
+ * LLDC_REFLECTION_ASSOCIATIVE_CONTAINER_VALUE when compiling
  * to change behavior of the library.
  */
 #pragma once
 
-namespace lldc::rttr::associative_containers {
+namespace lldc::reflection::associative_containers {
   extern const char* const KEY;
   extern const char* const VALUE;
-}; // lldc::rttr::associative_container
+}; // lldc::reflection::associative_container

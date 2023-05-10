@@ -4,9 +4,7 @@
  */
 #pragma once
 
-#include <lldc-rttr/api.h>
-
-namespace lldc::rttr::metadata {
+namespace lldc::reflection::metadata {
   /**
    * @brief Properties marked as optional will have this metadata set in their RTTR registration.
    */
