@@ -76,15 +76,21 @@ lldc_reflection_deps += rttr_dep
 
 # Optional libs for the 'converters' namespace
 
-# SocketIO-Client C++ (non-TLS)
-sioclient_dep = dependency('sioclient',
+# SocketIO-Client C++
+sioclient_dep = dependency('socket.io-client-cpp',
   version: '>=3.1.0',
   include_type: 'system',
+  fallback: ['sioclient', 'sioclient_dep'],
   required: false,
 )
-if not sioclient_dep.found() and get_option('socketio')
-  sioclient = subproject('sioclient')
-  sioclient_dep = sioclient.get_variable('sioclient_dep')
+if get_option('socketio')
+  if not sioclient_dep.found()
+    # Pull it in from the local wrap file if we're treating it as required.
+    sioclient = subproject('sioclient')
+    sioclient_dep = sioclient.get_variable('sioclient_dep')
+  endif
+endif
+if sioclient_dep.found()
   lldc_reflection_deps += sioclient_dep
 endif
 
