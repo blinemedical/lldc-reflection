@@ -110,7 +110,7 @@ subdir('include') # lldc_reflection_inc - public headers to install
 subdir('src')     # lldc_reflection_src, lldc_reflection_priv_inc
 
 # Create as a dynamic lib
-lldc_reflection = library('lldc-reflection', lldc_reflection_src,
+lldc_reflection = shared_library('lldc-reflection', lldc_reflection_src,
   include_directories: [lldc_reflection_inc, lldc_reflection_priv_inc],
   dependencies:        lldc_reflection_deps,
   cpp_args:            cpp_args + extra_args,
