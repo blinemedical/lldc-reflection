@@ -1,0 +1,18 @@
+{
+  "terminal.integrated.profiles.windows": {
+    "x64 Native Tools": {
+      "path": [
+          "${env:windir}\\Sysnative\\cmd.exe",
+          "${env:windir}\\System32\\cmd.exe"
+      ],
+      "args": [
+          "/K",
+          "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat",
+      ],
+      "icon": "terminal-cmd",
+    },
+  },
+  "terminal.integrated.defaultProfile.windows": "x64 Native Tools",
+  "testMate.cpp.test.executables": "${config:mesonbuild.buildFolder}/**/*{test,Test,TEST}*",
+  "C_Cpp.default.compileCommands": "${config:mesonbuild.buildFolder}\\vscode_compile_commands.json",
+}
