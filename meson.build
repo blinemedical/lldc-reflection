@@ -124,4 +124,5 @@ lldc_reflection_dep = declare_dependency(
   dependencies:        lldc_reflection_deps,
 )
 
+unset_variable('cdata')
 subdir('tests')
