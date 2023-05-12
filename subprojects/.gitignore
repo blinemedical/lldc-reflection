@@ -2,3 +2,4 @@ json-glib-1.0/
 packagecache/
 rttr/
 sioclient/
+googletest-release-*/
