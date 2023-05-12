@@ -14,6 +14,7 @@
 #include <lldc-reflection/exceptions/exceptions.h>
 
 #include "private/associative-containers.h"
+#include "private/metadata/metadata.h"
 
 namespace AC = lldc::reflection::associative_containers;
 namespace METADATA = lldc::reflection::metadata;
@@ -25,9 +26,6 @@ static bool write_variant (const ::rttr::variant &var, JsonNode *node, bool opti
 static bool attempt_write_fundamental_type (const ::rttr::type &t, const ::rttr::variant &var, JsonNode *node, bool optional = false);
 static bool write_array (const ::rttr::variant_sequential_view &view, JsonNode *node, bool optional = false);
 static bool write_associative_container (const ::rttr::variant_associative_view &view, JsonNode *node, bool optional = false);
-
-#define IS_OPTIONAL(p) (p.get_metadata(METADATA::OPTIONAL).is_valid())
-#define TREAT_STRING_AS_OPTIONAL(s, optional) ((s.length() == 0 && optional))
 
 #define IS_FUNDAMENTAL_TYPE(t) ((t.is_arithmetic() || t.is_enumeration() || (t == ::rttr::type::get<std::string>()) ))
 
@@ -71,7 +69,7 @@ attempt_write_fundamental_type (
     bool ok = false;
     auto result = var.to_string(&ok);
 
-    if (ok && !TREAT_STRING_AS_OPTIONAL(result, optional)) {
+    if (ok && !METADATA::is_string_optional(result, optional)) {
       json_node_init_string (node, var.to_string().c_str());
       did_write = true;
     }
@@ -88,8 +86,8 @@ attempt_write_fundamental_type (
   else if (t == ::rttr::type::get<std::string>()) {
     auto result = var.to_string();
 
-    if (!TREAT_STRING_AS_OPTIONAL(result, optional)) {
-      if (t.get_metadata(METADATA::BLOB)) {
+    if (!METADATA::is_string_optional(result, optional)) {
+      if (METADATA::is_blob(t)) {
         // Treat the string as JSON; store the serialized object into this node.
         GError* error = NULL;
         auto parsed = json_from_string(result.c_str(), &error);
@@ -245,11 +243,11 @@ to_json_recursive(const ::rttr::instance &obj2, JsonObject *json_object)
   {
     const auto name = prop.get_name();
     ::rttr::variant prop_value = prop.get_value(obj);
-    bool optional = IS_OPTIONAL(prop);
+    bool optional = METADATA::is_optional(prop);
 
     if (!prop_value)
       continue; // cannot serialize, unable to retrieve value.
-    if (prop.get_metadata(METADATA::NO_SERIALIZE))
+    if (METADATA::is_no_serialize(prop))
       continue; // skip it.
 
     JsonNode *prop_node = json_node_alloc();

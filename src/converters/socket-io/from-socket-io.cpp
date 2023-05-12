@@ -15,6 +15,7 @@
 #include <lldc-reflection/exceptions/exceptions.h>
 
 #include "private/associative-containers.h"
+#include "private/metadata/metadata.h"
 
 namespace AC = lldc::reflection::associative_containers;
 namespace METADATA = lldc::reflection::metadata;
@@ -178,7 +179,7 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
           auto view = var.create_associative_view();
           write_associative_view_recursively(member->get_vector(), view);
         }
-        else if (value_t.get_metadata(METADATA::BLOB).is_valid()) {
+        else if (METADATA::is_blob(value_t)) {
           auto blob = member->get_binary();
           if (blob.get())
             var = std::string(blob.get()->c_str());
@@ -187,7 +188,7 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
         break;
       }
       case ::sio::message::flag_object: {
-        if (value_t.get_metadata(METADATA::BLOB).is_valid()) {
+        if (METADATA::is_blob(value_t)) {
           auto blob = member->get_binary();
           if (blob.get())
             var = std::string(blob.get()->c_str());

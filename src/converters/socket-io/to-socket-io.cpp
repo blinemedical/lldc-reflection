@@ -12,6 +12,7 @@
 #include <lldc-reflection/exceptions/exceptions.h>
 
 #include "private/associative-containers.h"
+#include "private/metadata/metadata.h"
 
 namespace AC = lldc::reflection::associative_containers;
 namespace METADATA = lldc::reflection::metadata;
@@ -28,23 +29,6 @@ static bool attempt_write_fundamental_type (const ::rttr::type &t, const ::rttr:
 static bool write_array (const ::rttr::variant_sequential_view &view, ::sio::message::ptr &member, bool optional=false);
 static bool write_associative_container (const ::rttr::variant_associative_view &view, ::sio::message::ptr &member, bool optional=false);
 
-
-inline bool is_optional (const ::rttr::property &p) {
-  return p.get_metadata(metadata::OPTIONAL).is_valid();
-}
-
-inline bool do_not_serialize(const ::rttr::property &p) {
-  return p.get_metadata(metadata::NO_SERIALIZE).is_valid();
-}
-
-inline bool treat_as_blob(const ::rttr::property &p) {
-  return p.get_metadata(metadata::BLOB).is_valid();
-}
-
-inline bool treat_string_as_optional(const std::string &s, bool optional) {
-  return ((s.length() == 0 && optional));
-}
-
 inline bool is_fundamental_type(const ::rttr::type &t) {
   return ((t.is_arithmetic() || t.is_enumeration() || (t == ::rttr::type::get<std::string>())));
 }
@@ -60,11 +44,11 @@ to_socket_io_recursive(const ::rttr::instance &obj2, sio_object &object)
   {
     const auto name = prop.get_name();
     ::rttr::variant prop_value = prop.get_value(obj);
-    bool optional = is_optional(prop);
+    bool optional = METADATA::is_optional(prop);
 
     if (!prop_value)
       continue; // cannot serialize, unable to retrieve value
-    if (do_not_serialize(prop))
+    if (METADATA::is_no_serialize(prop))
       continue; // skip it
 
     ::sio::message::ptr member;
@@ -182,7 +166,7 @@ attempt_write_fundamental_type(
     bool ok = false;
     auto result = var.to_string(&ok);
 
-    if (ok && !treat_string_as_optional(result, optional)) {
+    if (ok && !METADATA::is_string_optional(result, optional)) {
       member = ::sio::string_message::create(var.to_string());
       did_write = true;
     }
@@ -199,8 +183,8 @@ attempt_write_fundamental_type(
   else if (t == ::rttr::type::get<std::string>()) {
     auto result = var.to_string();
 
-    if (!treat_string_as_optional(result, optional)) {
-      if (t.get_metadata(METADATA::BLOB).is_valid()) {
+    if (!METADATA::is_string_optional(result, optional)) {
+      if (METADATA::is_blob(t)) {
         member = ::sio::binary_message::create(std::make_shared<std::string>(result));
       }
       else {

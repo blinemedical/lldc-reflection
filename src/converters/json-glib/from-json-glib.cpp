@@ -11,6 +11,7 @@
 #include <lldc-reflection/exceptions/exceptions.h>
 
 #include "private/associative-containers.h"
+#include "private/metadata/metadata.h"
 
 namespace AC = lldc::reflection::associative_containers;
 namespace METADATA = lldc::reflection::metadata;
@@ -170,7 +171,7 @@ from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2)
           auto view = var.create_associative_view();
           write_associative_view_recursively(json_array, view);
         }
-        else if (value_t.get_metadata(METADATA::BLOB)) {
+        else if (METADATA::is_blob(value_t)) {
           auto json_str = json_to_string(member, TRUE);
           if (json_str) {
             var = std::string(json_str);
@@ -183,7 +184,7 @@ from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2)
       }
       case JSON_NODE_OBJECT:
       {
-        if (value_t.get_metadata(METADATA::BLOB)) {
+        if (METADATA::is_blob(value_t)) {
           auto json_str = json_to_string(member, TRUE);
           if (json_str) {
             var = std::string(json_str);

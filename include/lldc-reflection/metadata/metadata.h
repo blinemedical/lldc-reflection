@@ -1,6 +1,9 @@
 /**
  * Copyright 2023 Laerdal Labs, DC
  *   Author: Thomas Goodwin <thomas.goodwin@laerdal.com>
+ *
+ * These methods can be used during object registration to mark
+ * properties for alternate handling within the converters.
  */
 #pragma once
 
@@ -11,25 +14,19 @@ namespace lldc::reflection::metadata {
   /**
    * @brief Properties marked as optional will have this metadata set in their RTTR registration.
    */
-  extern const char* const OPTIONAL;
-
   LLDC_REFLECTION_API
-  ::rttr::detail::metadata SET_IS_OPTIONAL();
+  ::rttr::detail::metadata set_is_optional();
 
   /**
    * @brief Properties that should not be serialized will have this metadata set in their RTTR
    * registrations.
    */
-  extern const char* const NO_SERIALIZE;
-
   LLDC_REFLECTION_API
-  ::rttr::detail::metadata SET_IS_DO_NOT_SERIALIZE();
+  ::rttr::detail::metadata set_is_do_not_serialize();
 
   /**
    * @brief Property will be stored/recovered as a character string.
    */
-  extern const char* const BLOB;
-
   LLDC_REFLECTION_API
-  ::rttr::detail::metadata SET_IS_BLOB();
+  ::rttr::detail::metadata set_is_blob();
 };
