@@ -74,6 +74,15 @@ if not rttr_dep.found()
 endif
 lldc_reflection_deps += rttr_dep
 
+# vsXXXX backends need 'help' including rttr into the path so that using
+# meson devenv, one can then 'devenv <the generated solution>' and have
+# the RTTR library on the PATH variable.
+if meson.backend().startswith('vs')
+  rttr_path = environment()
+  rttr_path.prepend('PATH', meson.global_build_root() / 'subprojects' / 'rttr' )
+  meson.add_devenv(rttr_path)
+endif
+
 # Optional libs for the 'converters' namespace
 
 # SocketIO-Client C++
