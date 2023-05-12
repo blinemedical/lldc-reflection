@@ -292,7 +292,7 @@ to_json_recursive(const ::rttr::instance &obj2, JsonObject *json_object)
 }
 
 JsonNode*
-to_json_node_glib (::rttr::instance rttr_obj) {
+to_json_glib (::rttr::instance rttr_obj) {
   JsonNode* root = NULL;
 
   if (rttr_obj.is_valid()) {
@@ -313,7 +313,7 @@ namespace json_glib {
   std::string
   to_json(::rttr::instance obj)
   {
-    JsonNode* root = to_json_node_glib(obj);
+    JsonNode* root = to_json_glib(obj);
     auto s = json_to_string (root, TRUE);
     std::string out(s);
     g_free(s);
