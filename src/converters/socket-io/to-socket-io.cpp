@@ -114,9 +114,7 @@ attempt_write_fundamental_type(
       did_write = true;
     }
     else if (t == ::rttr::type::get<char>()) {
-      // This char->bool is from the original and seems odd, to
-      // munge the type like this, but I'm keeping it.
-      member = ::sio::bool_message::create(var.to_bool());
+      member = ::sio::string_message::create(var.to_string());
       did_write = true;
     }
     else if (t == ::rttr::type::get<int>()) {
@@ -140,19 +138,19 @@ attempt_write_fundamental_type(
       did_write = true;
     }
     else if (t == ::rttr::type::get<uint8_t>()) {
-      member = ::sio::int_message::create(var.to_uint8());
+      member = ::sio::int_message::create(static_cast<int64_t>(var.to_uint8()));
       did_write = true;
     }
     else if (t == ::rttr::type::get<uint16_t>()) {
-      member = ::sio::int_message::create(var.to_uint16());
+      member = ::sio::int_message::create(static_cast<int64_t>(var.to_uint16()));
       did_write = true;
     }
     else if (t == ::rttr::type::get<uint32_t>()) {
-      member = ::sio::int_message::create(var.to_uint32());
+      member = ::sio::int_message::create(static_cast<int64_t>(var.to_uint32()));
       did_write = true;
     }
     else if (t == ::rttr::type::get<uint64_t>()) {
-      member = ::sio::int_message::create(var.to_uint64());
+      member = ::sio::int_message::create(static_cast<int64_t>(var.to_uint64()));
       did_write = true;
     }
     else if (t == ::rttr::type::get<float>() || t == ::rttr::type::get<double>()) {

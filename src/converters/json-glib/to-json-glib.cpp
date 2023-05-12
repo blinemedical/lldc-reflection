@@ -45,17 +45,43 @@ attempt_write_fundamental_type (
       did_write = true;
     }
     else if (t == ::rttr::type::get<char>()) {
-      // This char->bool is from the original and seems odd, to
-      // munge the type like this.  Keeping it though
-      json_node_init_boolean(node, var.to_bool());
+      json_node_init_string(node, var.to_string().c_str());
       did_write = true;
     }
     else if (t == ::rttr::type::get<int>()) {
       json_node_init_int(node, var.to_int());
       did_write = true;
     }
+    else if (t == ::rttr::type::get<int8_t>()) {
+      json_node_init_int(node, var.to_int8());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<int16_t>()) {
+      json_node_init_int(node, var.to_int16());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<int32_t>()) {
+      json_node_init_int(node, var.to_int32());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<int64_t>()) {
+      json_node_init_int(node, var.to_int64());
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<uint8_t>()) {
+      json_node_init_int(node, static_cast<int64_t>(var.to_uint8()));
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<uint16_t>()) {
+      json_node_init_int(node, static_cast<int64_t>(var.to_uint16()));
+      did_write = true;
+    }
+    else if (t == ::rttr::type::get<uint32_t>()) {
+      json_node_init_int(node, static_cast<int64_t>(var.to_uint32()));
+      did_write = true;
+    }
     else if (t == ::rttr::type::get<uint64_t>()) {
-      json_node_init_int(node, var.to_uint64());
+      json_node_init_int(node, static_cast<int64_t>(var.to_uint64()));
       did_write = true;
     }
     else if (t == ::rttr::type::get<float>() || t == ::rttr::type::get<double>()) {

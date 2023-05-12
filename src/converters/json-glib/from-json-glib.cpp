@@ -22,7 +22,7 @@ namespace lldc::reflection::converters {
 static void from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2);
 static void write_array_recursively (JsonArray *arr, ::rttr::variant_sequential_view &view);
 static void write_associative_view_recursively (JsonArray *arr, ::rttr::variant_associative_view &view);
-static ::rttr::variant extract_basic_types (JsonNode *json_value);
+static ::rttr::variant extract_basic_types (JsonNode *json_value, const ::rttr::type &t);
 static ::rttr::variant extract_value (JsonNode *json_value, const ::rttr::type &t);
 
 
@@ -46,7 +46,7 @@ write_array_recursively (JsonArray *json_array, ::rttr::variant_sequential_view 
       view.set_value (i, wrapped_var);
     }
     else if (JSON_NODE_HOLDS_VALUE (element)) {
-      ::rttr::variant extracted_value = extract_basic_types (element);
+      ::rttr::variant extracted_value = extract_basic_types (element, array_value_type);
       if (extracted_value.convert(array_value_type))
         view.set_value(i, extracted_value);
     }
@@ -78,7 +78,7 @@ write_associative_view_recursively (JsonArray *json_array, ::rttr::variant_assoc
     }
     else {
       // a "key-only" associative view (??)
-      ::rttr::variant extracted_value = extract_basic_types (element);
+      ::rttr::variant extracted_value = extract_basic_types (element, view.get_key_type());
       if (extracted_value && extracted_value.convert(view.get_key_type()))
         view.insert(extracted_value);
     }
@@ -86,37 +86,48 @@ write_associative_view_recursively (JsonArray *json_array, ::rttr::variant_assoc
 }
 
 static ::rttr::variant
-extract_basic_types (JsonNode *json_value)
+extract_basic_types (JsonNode *json_value, const ::rttr::type &t)
 {
   switch (json_node_get_value_type (json_value)) {
     case G_TYPE_CHAR:
+      return (char) *json_node_get_string(json_value);
+
     case G_TYPE_STRING:
       return std::string (json_node_get_string(json_value));
-      break;
 
     case G_TYPE_BOOLEAN:
       // Because the returned 'boolean' is typedef'd to int, we'll assert it
       // to boolean here just for the sake of it.
       return (json_node_get_boolean (json_value));
-      break;
+
+    // JsonGLIB does not store these types.  Keep this commented
+    // for future reference.  They're stored as int/int64
+    // case G_TYPE_UINT:
+    // case G_TYPE_UINT64:
 
     case G_TYPE_INT:
-    case G_TYPE_INT64:
-      return json_node_get_int (json_value);
-      break;
-
-    case G_TYPE_UINT:
-    case G_TYPE_UINT64:
-      return (uint64_t) json_node_get_int (json_value);
-      break;
+    case G_TYPE_INT64: {
+      auto temp = json_node_get_int(json_value);
+      if (t == ::rttr::type::get<uint8_t>()) {
+        return static_cast<uint8_t> (temp);
+      }
+      else if (t == ::rttr::type::get<uint16_t>()) {
+        return static_cast<uint16_t> (temp);
+      }
+      else if (t == ::rttr::type::get<uint32_t>()) {
+        return static_cast<uint32_t> (temp);
+      }
+      else if (t == ::rttr::type::get<uint64_t>()) {
+        return static_cast<uint64_t> (temp);
+      }
+      return temp;
+    }
 
     case G_TYPE_FLOAT:
     case G_TYPE_DOUBLE:
       return json_node_get_double (json_value);
-      break;
 
     default:
-      // handling no other cases at this time.
       break;
   }
   return ::rttr::variant();
@@ -125,7 +136,7 @@ extract_basic_types (JsonNode *json_value)
 static ::rttr::variant
 extract_value (JsonNode *json_value, const ::rttr::type &t)
 {
-  ::rttr::variant extracted_value = extract_basic_types (json_value);
+  ::rttr::variant extracted_value = extract_basic_types (json_value, t);
   const bool could_convert = extracted_value.can_convert(t);
 
   if (!could_convert) {
@@ -200,7 +211,7 @@ from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2)
       }
       default:
       {
-        var = extract_basic_types (member);
+        var = extract_basic_types (member, value_t);
         // REMARK: conversion only works with "const type".
         if (var.convert(value_t))
           prop.set_value(obj, var);

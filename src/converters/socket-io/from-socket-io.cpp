@@ -28,7 +28,7 @@ using sio_array = std::vector<::sio::message::ptr>;
 
 static void write_array_recursively (const sio_array &array, ::rttr::variant_sequential_view &view);
 static void write_associative_view_recursively (const sio_array &array, ::rttr::variant_associative_view &view);
-static ::rttr::variant extract_basic_types (const ::sio::message &message);
+static ::rttr::variant extract_basic_types (const ::sio::message &message, const ::rttr::type &t);
 static ::rttr::variant extract_value (const ::sio::message &message, const ::rttr::type &t);
 static void from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2);
 
@@ -73,7 +73,7 @@ write_array_recursively (const sio_array &array, ::rttr::variant_sequential_view
       view.set_value (i, wrapped_var);
     }
     else if (is_a_basic_type(*element)) {
-      ::rttr::variant extracted_value = extract_basic_types(*element);
+      ::rttr::variant extracted_value = extract_basic_types(*element, array_value_type);
       if (extracted_value.convert(array_value_type))
         view.set_value(i, extracted_value);
     }
@@ -101,7 +101,7 @@ write_associative_view_recursively (const sio_array &array, ::rttr::variant_asso
     }
     else {
       // a "key-only" associative view (??)
-      ::rttr::variant extracted_value = extract_basic_types(*element);
+      ::rttr::variant extracted_value = extract_basic_types(*element, view.get_key_type());
       if (extracted_value && extracted_value.convert(view.get_key_type()))
         view.insert(extracted_value);
     }
@@ -109,7 +109,7 @@ write_associative_view_recursively (const sio_array &array, ::rttr::variant_asso
 }
 
 static ::rttr::variant
-extract_basic_types (const ::sio::message &message)
+extract_basic_types (const ::sio::message &message, const ::rttr::type &t)
 {
   switch (message.get_flag()) {
     // Big fall-through to default for data marshalling
@@ -117,8 +117,23 @@ extract_basic_types (const ::sio::message &message)
     case ::sio::message::flag_boolean:
       return message.get_bool();
     case ::sio::message::flag_double:
-      return message.get_double();      
-    case ::sio::message::flag_integer:
+      return message.get_double();
+    case ::sio::message::flag_integer: {
+      auto temp = message.get_int();
+      if (t == ::rttr::type::get<uint8_t>()) {
+        return static_cast<uint8_t> (temp);
+      }
+      else if (t == ::rttr::type::get<uint16_t>()) {
+        return static_cast<uint16_t> (temp);
+      }
+      else if (t == ::rttr::type::get<uint32_t>()) {
+        return static_cast<uint32_t> (temp);
+      }
+      else if (t == ::rttr::type::get<uint64_t>()) {
+        return static_cast<uint64_t> (temp);
+      }
+      return temp;
+    }
       return message.get_int();
     case ::sio::message::flag_string:
       return message.get_string();
@@ -131,7 +146,7 @@ extract_basic_types (const ::sio::message &message)
 static ::rttr::variant
 extract_value (const ::sio::message &message, const ::rttr::type &t)
 {
-  ::rttr::variant extracted_value = extract_basic_types(message);
+  ::rttr::variant extracted_value = extract_basic_types(message, t);
   const bool could_convert = extracted_value.can_convert(t);
 
   if (!could_convert) {
@@ -202,7 +217,7 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
       }
       default:
         // REMARK: this conversion only works with "const type".
-        var = extract_basic_types(*member);
+        var = extract_basic_types(*member, value_t);
         if (var.convert(value_t))
           prop.set_value(obj, var);
     }
