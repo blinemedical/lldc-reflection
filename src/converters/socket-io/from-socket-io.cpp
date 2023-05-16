@@ -175,9 +175,14 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
 
   for (auto prop : prop_list)
   {
-    auto member = message.at(prop.get_name().to_string());
-    if (!member)
-      continue; // not found
+    auto name = prop.get_name().to_string();
+    auto optional = METADATA::is_optional(prop);
+    if (message.end() == message.find(name)) {
+      if (optional)
+        continue; // Okay to skip restoration
+      throw EXCEPTIONS::RequiredMemberSerializationFailure(name);
+    }
+    auto member = message.at(name);
 
     auto const value_t = prop.get_type();
     ::rttr::variant var;
@@ -235,7 +240,7 @@ from_socket_io (const ::sio::message::ptr message, ::rttr::instance object)
       from_socket_io_recursively (message->get_map(), object);
       success = true;
     }
-    catch (const EXCEPTIONS::ReferenceValueComparisonMismatch &e) {
+    catch (...) {
       // do nothing here; returning false.
       success = false;
     }
