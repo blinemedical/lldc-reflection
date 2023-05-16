@@ -168,7 +168,7 @@ attempt_write_fundamental_type(
     }
     else {
       // Attempt treating as a number
-      auto value = var.to_uint64(&ok);
+      auto value = var.to_int64(&ok);
       if (ok)
         member = ::sio::int_message::create(value);
       else
