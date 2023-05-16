@@ -13,9 +13,11 @@
 
 #include "private/associative-containers.h"
 #include "private/metadata/metadata.h"
+#include "private/type/type.h"
 
 namespace AC = lldc::reflection::associative_containers;
 namespace METADATA = lldc::reflection::metadata;
+namespace TYPE = lldc::reflection::type;
 
 using sio_object = std::map<std::string, ::sio::message::ptr>;
 using sio_array = std::vector<::sio::message::ptr>;
@@ -28,10 +30,6 @@ static bool write_variant(const ::rttr::variant &var, ::sio::message::ptr &membe
 static bool attempt_write_fundamental_type (const ::rttr::type &t, const ::rttr::variant &var, ::sio::message::ptr &member, bool optional=false);
 static bool write_array (const ::rttr::variant_sequential_view &view, ::sio::message::ptr &member, bool optional=false);
 static bool write_associative_container (const ::rttr::variant_associative_view &view, ::sio::message::ptr &member, bool optional=false);
-
-inline bool is_fundamental_type(const ::rttr::type &t) {
-  return ((t.is_arithmetic() || t.is_enumeration() || (t == ::rttr::type::get<std::string>())));
-}
 
 static bool
 to_socket_io_recursive(const ::rttr::instance &obj2, sio_object &object)
@@ -78,7 +76,7 @@ write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool opti
     localVar = localVar.extract_wrapped_value();
   }
 
-  if (is_fundamental_type(varType)) {
+  if (TYPE::is_fundamental(varType)) {
     did_write = attempt_write_fundamental_type(varType, localVar, member, optional);
   }
   else if (var.is_sequential_container()) {

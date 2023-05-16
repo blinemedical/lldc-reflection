@@ -15,9 +15,11 @@
 
 #include "private/associative-containers.h"
 #include "private/metadata/metadata.h"
+#include "private/type/type.h"
 
 namespace AC = lldc::reflection::associative_containers;
 namespace METADATA = lldc::reflection::metadata;
+namespace TYPE = lldc::reflection::type;
 
 namespace lldc::reflection::converters {
 
@@ -26,8 +28,6 @@ static bool write_variant (const ::rttr::variant &var, JsonNode *node, bool opti
 static bool attempt_write_fundamental_type (const ::rttr::type &t, const ::rttr::variant &var, JsonNode *node, bool optional = false);
 static bool write_array (const ::rttr::variant_sequential_view &view, JsonNode *node, bool optional = false);
 static bool write_associative_container (const ::rttr::variant_associative_view &view, JsonNode *node, bool optional = false);
-
-#define IS_FUNDAMENTAL_TYPE(t) ((t.is_arithmetic() || t.is_enumeration() || (t == ::rttr::type::get<std::string>()) ))
 
 static bool
 attempt_write_fundamental_type (
@@ -227,7 +227,7 @@ write_variant (const ::rttr::variant &var, JsonNode *node, bool optional)
     localVar = localVar.extract_wrapped_value();
   }
 
-  if (IS_FUNDAMENTAL_TYPE(varType)) {
+  if (TYPE::is_fundamental(varType)) {
     did_write = attempt_write_fundamental_type(varType, localVar, node, optional);
   }
   else if (var.is_sequential_container()) {
