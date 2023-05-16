@@ -6,22 +6,11 @@
 #include <lldc-reflection/metadata/metadata.h>
 #include "private/metadata/metadata.h"
 
-#ifndef LLDC_REFLECTION_METADATA_OPTIONAL
-#define LLDC_REFLECTION_METADATA_OPTIONAL "OPTIONAL"
-#endif
-
-#ifndef LLDC_REFLECTION_METADATA_NO_SERIALIZE
-#define LLDC_REFLECTION_METADATA_NO_SERIALIZE "NO_SERIALIZE"
-#endif
-
-#ifndef LLDC_REFLECTION_METADATA_BLOB
-#define LLDC_REFLECTION_METADATA_BLOB "BLOB"
-#endif
-
 namespace lldc::reflection::metadata {
-const char* const OPTIONAL = LLDC_REFLECTION_METADATA_OPTIONAL;
-const char* const NO_SERIALIZE = LLDC_REFLECTION_METADATA_NO_SERIALIZE;
-const char* const BLOB = LLDC_REFLECTION_METADATA_BLOB;
+const char* const OPTIONAL = "OPTIONAL";
+const char* const OPTIONAL_DEFAULT = "OPTIONAL_DEFAULT";
+const char* const NO_SERIALIZE = "NO_SERIALIZE";
+const char* const BLOB = "BLOB";
 
 ::rttr::detail::metadata
 set_is_optional() {
