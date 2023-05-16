@@ -23,9 +23,14 @@ struct ReferenceValueComparisonMismatch : public std::exception {
 };
 
 struct RequiredMemberSerializationFailure : public std::exception {
+  RequiredMemberSerializationFailure(const std::string& member_name) : _member_name(member_name) {}
+
   const char* what() const throw () {
-    return "required member could not be serialized";
+    return ("required member could not be serialized: " + _member_name).c_str();
   }
+
+protected:
+  const std::string _member_name;
 };
 
 }; //lldc::reflection::exceptions

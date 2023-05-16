@@ -56,7 +56,7 @@ to_socket_io_recursive(const ::rttr::instance &obj2, sio_object &object)
     }
     else if (!optional) {
       // Failed write and not optional -> error condition
-      throw exceptions::RequiredMemberSerializationFailure();
+      throw exceptions::RequiredMemberSerializationFailure(name.to_string());
     }
   }
 
