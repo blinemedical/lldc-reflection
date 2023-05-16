@@ -161,9 +161,14 @@ from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2)
   const auto prop_list = obj.get_derived_type().get_properties();
 
   for (auto prop : prop_list) {
-    JsonNode *member = json_object_get_member(json_obj, prop.get_name().data());
-    if (!member)
-      continue; // not found.
+    auto name = prop.get_name().data();
+    auto optional = METADATA::is_optional(prop);
+    JsonNode *member = json_object_get_member(json_obj, name);
+    if (!member) {
+      if (optional)
+        continue; // not found, okay to skip
+      throw EXCEPTIONS::RequiredMemberSerializationFailure(name);
+    }
 
     auto const value_t = prop.get_type();
     ::rttr::variant var;
@@ -240,7 +245,7 @@ from_json_glib (JsonNode *node, ::rttr::instance obj)
       from_json_recursively(root, obj);
       success = true;
     }
-    catch (const EXCEPTIONS::ReferenceValueComparisonMismatch &e) {
+    catch (...) {
       // do nothing here; returning false
       success = false;
     }
