@@ -13,8 +13,6 @@ namespace lldc::reflection::metadata {
 
 bool is_optional(const ::rttr::property &property);
 
-bool is_string_optional(const std::string &s, bool optional);
-
 bool is_no_serialize(const ::rttr::property &propety);
 
 template <typename T>

@@ -42,12 +42,6 @@ bool
 is_optional(const ::rttr::property &property) {
   return property.get_metadata(metadata::OPTIONAL).is_valid();
 }
-
-bool
-is_string_optional(const std::string &s, bool optional) {
-  return ((s.length() == 0 && optional));
-}
-
 bool
 is_no_serialize(const ::rttr::property &property) {
   return property.get_metadata(metadata::NO_SERIALIZE).is_valid();

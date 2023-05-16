@@ -162,7 +162,7 @@ attempt_write_fundamental_type(
     bool ok = false;
     auto result = var.to_string(&ok);
 
-    if (ok && !METADATA::is_string_optional(result, optional)) {
+    if (ok && !(optional && result.empty())) {
       member = ::sio::string_message::create(var.to_string());
       did_write = true;
     }
@@ -179,7 +179,7 @@ attempt_write_fundamental_type(
   else if (t == ::rttr::type::get<std::string>()) {
     auto result = var.to_string();
 
-    if (!METADATA::is_string_optional(result, optional)) {
+    if (!(optional && result.empty())) {
       if (METADATA::is_blob(t)) {
         member = ::sio::binary_message::create(std::make_shared<std::string>(result));
       }

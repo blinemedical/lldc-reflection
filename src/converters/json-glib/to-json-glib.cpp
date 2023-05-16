@@ -95,7 +95,7 @@ attempt_write_fundamental_type (
     bool ok = false;
     auto result = var.to_string(&ok);
 
-    if (ok && !METADATA::is_string_optional(result, optional)) {
+    if (ok && !(optional && result.empty())) {
       json_node_init_string (node, var.to_string().c_str());
       did_write = true;
     }
@@ -112,7 +112,7 @@ attempt_write_fundamental_type (
   else if (t == ::rttr::type::get<std::string>()) {
     auto result = var.to_string();
 
-    if (!METADATA::is_string_optional(result, optional)) {
+    if (!(optional && result.empty())) {
       if (METADATA::is_blob(t)) {
         // Treat the string as JSON; store the serialized object into this node.
         GError* error = NULL;
