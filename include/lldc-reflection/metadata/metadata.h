@@ -18,6 +18,12 @@ namespace lldc::reflection::metadata {
   ::rttr::detail::metadata set_is_optional();
 
   /**
+   * @brief Treat the property as optional if this value is set.
+   */
+  LLDC_REFLECTION_API
+  ::rttr::detail::metadata set_is_optional_with_default(::rttr::variant value);
+
+  /**
    * @brief Properties that should not be serialized will have this metadata set in their RTTR
    * registrations.
    */

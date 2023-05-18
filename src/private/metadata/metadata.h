@@ -11,7 +11,8 @@
 
 namespace lldc::reflection::metadata {
 
-bool is_optional(const ::rttr::property &property);
+bool is_optional(const ::rttr::property &property, bool *has_default);
+bool is_optional(const ::rttr::property& property, const ::rttr::variant& reference, bool *matched_reference);
 
 bool is_no_serialize(const ::rttr::property &propety);
 

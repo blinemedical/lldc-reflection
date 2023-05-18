@@ -42,12 +42,22 @@ to_socket_io_recursive(const ::rttr::instance &obj2, sio_object &object)
   {
     const auto name = prop.get_name();
     ::rttr::variant prop_value = prop.get_value(obj);
-    bool optional = METADATA::is_optional(prop);
+    bool matches_default = false;
+    bool optional = METADATA::is_optional(prop, prop_value, &matches_default);
 
-    if (!prop_value)
-      continue; // cannot serialize, unable to retrieve value
-    if (METADATA::is_no_serialize(prop))
+    if (METADATA::is_no_serialize(prop)) {
       continue; // skip it
+    }
+
+    if (optional && matches_default) {
+      continue; // By implication, skip it.
+    }
+
+    if (!prop_value) {
+      if (optional)
+        continue; // cannot serialize, unable to retrieve value, but it's optional
+      throw reflection::exceptions::RequiredMemberSerializationFailure(name.to_string());
+    }
 
     ::sio::message::ptr member;
     if (write_variant(prop_value, member, optional)) {

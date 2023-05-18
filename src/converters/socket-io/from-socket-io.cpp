@@ -176,7 +176,7 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
   for (auto prop : prop_list)
   {
     auto name = prop.get_name().to_string();
-    auto optional = METADATA::is_optional(prop);
+    auto optional = METADATA::is_optional(prop, nullptr);
     if (message.end() == message.find(name)) {
       if (optional)
         continue; // Okay to skip restoration

@@ -162,7 +162,7 @@ from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2)
 
   for (auto prop : prop_list) {
     auto name = prop.get_name().data();
-    auto optional = METADATA::is_optional(prop);
+    auto optional = METADATA::is_optional(prop, nullptr);
     JsonNode *member = json_object_get_member(json_obj, name);
     if (!member) {
       if (optional)
