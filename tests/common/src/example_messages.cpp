@@ -67,9 +67,12 @@ RTTR_PLUGIN_REGISTRATION {
   /**
    * @brief Register the FirstMessage's Body structure.
    * NOTE: The namespacing is only for our benefit here.
-   * 
    */
   ::rttr::registration::class_<T::FirstMessage::Body>("first-message::body")
+    // NOTE: this is to support the by-value member; we get a construction error from rttr
+    //       when trying to create this from an intermediate type if we do not specify
+    //       this policy.
+    .constructor<>()(::rttr::policy::ctor::as_object)
     .property("data", &T::FirstMessage::Body::data)
     ;
 
