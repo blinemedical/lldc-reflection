@@ -92,6 +92,6 @@ RTTR_PLUGIN_REGISTRATION {
     .property("some_int16",  &T::SecondMessage::some_int16)
     .property("some_int8",   &T::SecondMessage::some_int8)
     .property("some_float",  &T::SecondMessage::some_float)
-    .property("some_double",  &T::SecondMessage::some_double)
+    .property("some_double", &T::SecondMessage::some_double)
     ;
 };
