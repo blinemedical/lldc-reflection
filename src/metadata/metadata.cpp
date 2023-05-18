@@ -71,14 +71,21 @@ is_optional(const ::rttr::property& property, const ::rttr::variant& reference, 
 
   return result;
 }
+
 bool
 is_no_serialize(const ::rttr::property &property) {
-  return property.get_metadata(metadata::NO_SERIALIZE).is_valid();
+  auto md = property.get_metadata(metadata::NO_SERIALIZE);
+  if (md.is_valid())
+    return md.to_bool();
+  return false;
 }
 
 template <typename T>
 bool is_blob(const T &rttr_t) {
-  return rttr_t.get_metadata(metadata::BLOB).is_valid();
+  auto md = rttr_t.get_metadata(metadata::BLOB);
+  if (md.is_valid())
+    return md.to_bool();
+  return false;
 }
 
 }; // lldc::reflection::metadata
