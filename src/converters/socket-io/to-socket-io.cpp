@@ -98,9 +98,12 @@ write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool opti
   else {
     // Not fundamental or container -- treat as object.
     auto temp = ::sio::object_message::create();
-    to_socket_io_recursive(var, temp->get_map());
-    member.swap(temp);
-    did_write = true;
+    if (!varType.get_properties().empty()) {
+      if (to_socket_io_recursive(var, temp->get_map())) {
+        member.swap(temp);
+        did_write = true;
+      }
+    }
   }
 
   return did_write;
