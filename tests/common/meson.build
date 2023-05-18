@@ -46,6 +46,14 @@ common_test_lib_dep = declare_dependency(
   dependencies:        common_test_deps,
 )
 
+# Add the library to the root path if using vs backend because of apparent
+# bug in meson.
+if meson.backend().startswith('vs')
+  lib_path = environment()
+  lib_path.prepend('PATH', meson.current_build_dir())
+  meson.add_devenv(lib_path, method: 'prepend')
+endif
+
 unset_variable('common_test_data')
 unset_variable('common_test_lib')
 unset_variable('common_test_inc')
