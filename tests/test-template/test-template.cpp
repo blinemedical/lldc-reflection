@@ -162,6 +162,217 @@ TEST(unit, SecondMessage) {
   uut_unref(temp);
 }
 
+template <typename T>
+static bool member_check_function(T ref, const std::string &name) {
+  bool result = false;
+
+#ifdef TEST_JSON_GLIB
+  auto ref_obj = json_node_get_object(ref);
+  result = json_object_has_member(ref_obj, name.c_str());
+
+#elif TEST_SOCKET_IO
+  auto ref_obj = ref->get_map();
+  result = (ref_obj.end() != ref_obj.find(name));
+#endif
+
+  return result;
+}
+
+TEST(Optionals, ToSkippedOnEmptyOrDefaulted) {
+  /**
+   * Verify that optional members are completely skipped in the 'to'
+   * conversion process:
+   *   Container types
+   *     optional_string
+   *     optional_vector
+   *     optional_map
+   *   Scalar types:
+   *     optional_defaulted_uint64 (because it matches a default)
+   *   Pointer types:
+   *     optional_sptr
+   *     optional_rawptr
+   *
+   * NOTE: There are other optional members which will not be skipped
+   */
+  OptionalMemberMessage input;
+  uut_type temp;
+  std::vector<std::string> optional_names = {
+    "optional_string",
+    "optional_vector",
+    "optional_map",
+    "optional_defaulted_uint64",
+    "optional_sptr",
+    "optional_rawptr"
+  };
+
+  // This better work.
+  EXPECT_NO_THROW(temp = to_conversion(input));
+
+  // Verify the names are missing from 'temp', however that intermediate
+  // type's API functions.
+  for (auto const& name : optional_names) {
+    EXPECT_FALSE(member_check_function(temp, name)) <<
+      "Unexpected Property Name: " << name;
+  }
+
+  // Verify the required members are present despite being empty, nullptr, etc.
+  // or because they are by-value and registered with no default to clarify when
+  // the associated value is considered a optional/skippable.
+  std::vector<std::string> required_names = {
+    "required_string",
+    "required_vector",
+    "required_map",
+    "required_sptr",
+    "required_rawptr",
+    "required_obj",
+    "optional_uint64",
+    "optional_obj"
+  };
+
+  for (auto const& name : required_names) {
+    EXPECT_TRUE(member_check_function(temp, name)) <<
+      "Missing Property Name: " << name;
+  }
+
+  uut_unref(temp);
+}
+
+
+TEST(Optionals, MissingRequiredWillFail) {
+  /**
+   * Verify that a missing non-optional field in the intermediate type
+   * will cause a 'from' call to fail (return false).  In this case, the
+   * class has a 'required_string' member, which will trigger the failure
+   * when restored from an empty object.
+   */
+  OptionalMemberMessage output;
+  uut_type temp;
+
+  // Verify that from fails if a required container member
+  // is not given in the intermediate class.
+#if TEST_JSON_GLIB
+  temp = json_from_string("{}", NULL);
+#elif TEST_SOCKET_IO
+  temp = ::sio::object_message::create();
+#endif
+  EXPECT_FALSE(from_conversion(temp, output));
+  uut_unref(temp);
+}
+
+TEST(Optionals, String) {
+  OptionalMemberMessage input, output;
+  uut_type temp;
+
+  input.optional_string = "is now set";
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(member_check_function(temp, "optional_string"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+}
+
+TEST(Optionals, Vector) {
+  OptionalMemberMessage input, output;
+  uut_type temp;
+
+  input.optional_vector.push_back(5);
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(member_check_function(temp, "optional_vector"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+}
+
+TEST(Optionals, Map) {
+  OptionalMemberMessage input, output;
+  uut_type temp;
+
+  input.optional_map["test_value"] = 42;
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(member_check_function(temp, "optional_map"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+}
+
+TEST(Optionals, SharedPointer) {
+  OptionalMemberMessage input, output;
+  uut_type temp;
+
+  input.optional_sptr = std::make_shared<OptionalMemberMessage::Payload>();
+  input.optional_sptr->value = 53;
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(member_check_function(temp, "optional_sptr"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+}
+
+TEST(Optionals, RawPointer) {
+  OptionalMemberMessage input, output;
+  uut_type temp;
+
+  input.optional_rawptr = new OptionalMemberMessage::Payload();
+  input.optional_rawptr->value = 87;
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(member_check_function(temp, "optional_rawptr"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+}
+
+TEST(Optionals, ObjectByValue) {
+  OptionalMemberMessage input, output;
+  uut_type temp;
+
+  input.optional_obj.value = 32;
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(member_check_function(temp, "optional_obj"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+}
+
+TEST(Optionals, ValueType) {
+  OptionalMemberMessage input, output;
+  uut_type temp;
+
+  input.optional_uint64 = 58;
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(member_check_function(temp, "optional_uint64"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+}
+
+TEST(Optionals, DefaultedValueType) {
+  /**
+   * The input and output objects are constructed with the default value already
+   * set, so this test confirms that the 'to' conversion skipped the member and
+   * the output object once again had the default value, by design.  Then on the
+   * second pass of a test, we change the default value and confirm that it both
+   * existed in the intermediate stage and the output as the new value.
+   */
+  OptionalMemberMessage input, output;
+  uut_type temp;
+
+  EXPECT_EQ(input.optional_defaulted_uint64, OptionalMemberMessage::DEFAULT_U64_VALUE);
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_FALSE(member_check_function(temp, "optional_defaulted_uint64"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+
+  // Now it won't match the default value, so it _should_ be in the intermediate step
+  // and therefore should also result in the output being set.
+  input.optional_defaulted_uint64 = 50 + OptionalMemberMessage::DEFAULT_U64_VALUE;
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(member_check_function(temp, "optional_defaulted_uint64"));
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input, output);
+  uut_unref(temp);
+}
+
 int main (int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
