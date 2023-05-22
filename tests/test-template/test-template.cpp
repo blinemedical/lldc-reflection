@@ -38,7 +38,7 @@ struct SubjectGuardUUT : ApiMessage
   }
 };
 
-TEST(unit, SubjectGuard) {
+TEST(Examples, SetOnceBehavior) {
   /**
    * @brief The 'subject' field of the base class can be set
    * to 'not_set' (default) for the sake of introspecting the
@@ -67,7 +67,7 @@ TEST(unit, SubjectGuard) {
  * reason for returning false, so verify we get false on the
  * bad conversion.
  */
-TEST(unit, FailedConversion) {
+TEST(Examples, GuardIncorrectConversions) {
   FirstMessage uut_first;
   SecondMessage uut_second;
   uut_type converted_first;
@@ -84,7 +84,7 @@ TEST(unit, FailedConversion) {
  * serializing to it works.  This also verifies the non-destructive
  * nature of the 'from' converter to support this behavior.
  */
-TEST(unit, CanInspect) {
+TEST(Examples, InspectableProperty) {
   ApiMessage tester;
   FirstMessage first;
   SecondMessage second;
@@ -100,7 +100,7 @@ TEST(unit, CanInspect) {
   uut_unref(temp);
 }
 
-TEST(unit, ApiMessage) {
+TEST(Examples, ApiMessage) {
   /**
    * @brief Verify the ApiMessage can be converted to sio and back
    * again.  Setting the subject as 'first_message' will verify that
@@ -118,7 +118,7 @@ TEST(unit, ApiMessage) {
   uut_unref(converted_uut);
 }
 
-TEST(unit, FirstMessage) {
+TEST(Examples, FirstMessage) {
   FirstMessage input, output;
   uut_type temp;
 
@@ -130,7 +130,7 @@ TEST(unit, FirstMessage) {
   uut_unref(temp);
 }
 
-TEST(unit, SecondMessage) {
+TEST(Examples, SecondMessage) {
   SecondMessage input, output;
   uut_type temp;
 
