@@ -127,7 +127,7 @@ attempt_write_fundamental_type (
         }
       }
       else {
-        json_node_init_string(node, var.to_string().c_str());
+        json_node_init_string(node, result.c_str());
         did_write = true;
       }
     }
