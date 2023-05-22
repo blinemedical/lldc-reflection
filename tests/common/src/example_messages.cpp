@@ -39,7 +39,8 @@ RTTR_PLUGIN_REGISTRATION {
   ::rttr::registration::enumeration<T::Subject>("subject") (
     ::rttr::value(nullptr, T::Subject::not_set),
     ::rttr::value("first-message", T::Subject::first_message),
-    ::rttr::value("second-message", T::Subject::second_message)
+    ::rttr::value("second-message", T::Subject::second_message),
+    ::rttr::value("optional-member-message", T::Subject::optional_member_message)
   );
 
   /**
@@ -93,5 +94,48 @@ RTTR_PLUGIN_REGISTRATION {
     .property("some_int8",   &T::SecondMessage::some_int8)
     .property("some_float",  &T::SecondMessage::some_float)
     .property("some_double", &T::SecondMessage::some_double)
+    ;
+
+  ::rttr::registration::class_<T::OptionalMemberMessage>("optional-member-message")
+    .property("required_string", &T::OptionalMemberMessage::required_string)
+    .property("optional_string", &T::OptionalMemberMessage::optional_string)
+      (::lldc::reflection::metadata::set_is_optional())
+    .property("optional_vector", &T::OptionalMemberMessage::optional_vector)
+      (
+        ::lldc::reflection::metadata::set_is_optional(),
+        // Good idea for big data types, per rttr manual
+        ::rttr::policy::prop::as_reference_wrapper
+      )
+    .property("required_vector", &T::OptionalMemberMessage::required_vector)
+      (::rttr::policy::prop::as_reference_wrapper)
+    .property("optional_map", &T::OptionalMemberMessage::optional_map)
+      (
+        ::lldc::reflection::metadata::set_is_optional(),
+        // Good idea for big data types, per rttr manual
+        ::rttr::policy::prop::as_reference_wrapper
+      )
+    .property("required_map", &T::OptionalMemberMessage::required_map)
+      (::rttr::policy::prop::as_reference_wrapper)
+    .property("optional_defaulted_uint64", &T::OptionalMemberMessage::optional_defaulted_uint64)
+      (::lldc::reflection::metadata::set_is_optional_with_default(T::OptionalMemberMessage::DEFAULT_U64_VALUE))
+    .property("optional_uint64", &T::OptionalMemberMessage::optional_uint64)
+      (::lldc::reflection::metadata::set_is_optional())
+    .property("required_uint64", &T::OptionalMemberMessage::required_uint64)
+    .property("optional_sptr", &T::OptionalMemberMessage::optional_sptr)
+      (::lldc::reflection::metadata::set_is_optional())
+    .property("required_sptr", &T::OptionalMemberMessage::required_sptr)
+    .property("optional_rawptr", &T::OptionalMemberMessage::optional_rawptr)
+      (::lldc::reflection::metadata::set_is_optional())
+    .property("required_rawptr", &T::OptionalMemberMessage::required_rawptr)
+
+    .property("optional_obj", &T::OptionalMemberMessage::optional_obj)
+      (::lldc::reflection::metadata::set_is_optional())
+    .property("required_obj", &T::OptionalMemberMessage::required_obj)
+    ;
+
+  ::rttr::registration::class_<T::OptionalMemberMessage::Payload>("optional-member-message::payload")
+    .constructor<>() (::rttr::policy::ctor::as_std_shared_ptr)
+    .constructor<>() (::rttr::policy::ctor::as_raw_ptr)
+    .property("value", &T::OptionalMemberMessage::Payload::value)
     ;
 };

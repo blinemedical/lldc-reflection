@@ -18,6 +18,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 namespace lldc::testing {
 
@@ -25,7 +26,8 @@ enum class COMMON_TEST_API
 Subject {
   not_set = -1,
   first_message,
-  second_message
+  second_message,
+  optional_member_message
 };
 
 struct COMMON_TEST_API
@@ -127,6 +129,136 @@ SecondMessage : public ApiMessage {
   int8_t      some_int8;
 
   RTTR_ENABLE(ApiMessage);
+};
+
+/**
+ * @brief This message showcases the behavior of the "optional" metadata.
+ * On the from -side of the conversion:
+ *   1. A missing member name that is optional/optional_default will not
+ *      generate an error/failure to convert exception.
+ *   2. Default values are not used in the 'from' processes at this time;
+ *      the assumption is the target object would have set that default on
+ *      its own.
+ *   3. Wrapped objects (shared_ptr) are not  supported at this time.
+ * On the to -side of the conversion:
+ *   1. An optional container or object pointer member (bool <type>::empty())
+ *      that are empty (or nullptr) will be skipped.
+ *   2. An optional fundamental value having no default will not be sanity
+ *      checked on intent; it will be skipped.
+ *   3. An optional+default member will be skipped if the reference object's
+ *      value matches the registered default.
+ */
+struct COMMON_TEST_API
+OptionalMemberMessage : public ApiMessage
+{
+  static const uint64_t DEFAULT_U64_VALUE = 86;
+
+  OptionalMemberMessage() :
+    ApiMessage(Subject::optional_member_message),
+    optional_string(),
+    required_string(),
+    optional_vector(),
+    required_vector(),
+    optional_map(),
+    required_map(),
+    optional_defaulted_uint64(DEFAULT_U64_VALUE),
+    optional_uint64(12345),
+    required_uint64(67890),
+    optional_sptr(nullptr),
+    required_sptr(nullptr),
+    optional_rawptr(nullptr),
+    required_rawptr(nullptr),
+    optional_obj(),
+    required_obj()
+  { /** intentionally empty */ }
+
+  ~OptionalMemberMessage() {
+    if (optional_rawptr)
+      delete optional_rawptr;
+    if (required_rawptr)
+      delete required_rawptr;
+  }
+
+  struct Payload {
+    int32_t value;
+
+    friend bool operator==(const Payload& lhs, const Payload& rhs) {
+      return (lhs.value == rhs.value);
+    }
+
+    RTTR_ENABLE();
+  };
+
+  // Container types
+  std::string                     optional_string;
+  std::string                     required_string;
+  std::vector<uint64_t>           optional_vector;
+  std::vector<uint64_t>           required_vector;
+  std::map<std::string, uint64_t> optional_map;
+  std::map<std::string, uint64_t> required_map;
+
+  // Value -type member
+  uint64_t                        optional_defaulted_uint64;
+  uint64_t                        optional_uint64;
+  uint64_t                        required_uint64;
+
+  // Unique Pointer
+  // NOT SUPPORTED: https://github.com/rttrorg/rttr/issues/39
+  // std::unique_ptr<Payload>        optional_uptr;
+
+  // Shared Pointer
+  std::shared_ptr<Payload>        optional_sptr;
+  std::shared_ptr<Payload>        required_sptr;
+
+  // Raw Pointer
+  Payload*                        optional_rawptr;
+  Payload*                        required_rawptr;
+
+  // By-value to object
+  Payload                         optional_obj;
+  Payload                         required_obj;
+
+  friend bool operator==(const OptionalMemberMessage &lhs, const OptionalMemberMessage &rhs) {
+    bool containers_and_values_match = (
+      std::tie(
+        lhs.optional_string, lhs.required_string,
+        lhs.optional_vector, lhs.required_vector,
+        lhs.optional_map, lhs.required_map,
+        lhs.optional_defaulted_uint64, lhs.optional_uint64, lhs.required_uint64,
+        lhs.optional_obj, lhs.required_obj)
+      ==
+      std::tie(
+        rhs.optional_string, rhs.required_string,
+        rhs.optional_vector, rhs.required_vector,
+        rhs.optional_map, rhs.required_map,
+        rhs.optional_defaulted_uint64, rhs.optional_uint64, rhs.required_uint64,
+        rhs.optional_obj, rhs.required_obj)
+    );
+
+    std::vector<std::pair<const OptionalMemberMessage::Payload*, const OptionalMemberMessage::Payload*>> pointers = {
+      std::make_pair(lhs.optional_sptr.get(), rhs.optional_sptr.get()),
+      std::make_pair(lhs.required_sptr.get(), rhs.required_sptr.get()),
+      std::make_pair(lhs.optional_rawptr, rhs.optional_rawptr),
+      std::make_pair(lhs.required_rawptr, rhs.required_rawptr)
+    };
+
+    bool pointers_match = true;
+    for (const auto &item : pointers) {
+      if ((item.first && !item.second) || (!item.first && item.second)) {
+        // One or the either is not set when it should be
+        pointers_match = false;
+      }
+      else if (item.first && item.second && !(*item.first == *item.second)) {
+        // Both are set, but operator== fails on the instances
+        pointers_match = false;
+      }
+
+      if (!pointers_match)
+        break;
+    }
+
+    return containers_and_values_match && pointers_match;
+  }
 };
 
 }; // lldc::testing
