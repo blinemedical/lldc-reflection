@@ -208,7 +208,23 @@ from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2)
           }
         }
         else {
+          ::rttr::type local_value_t = value_t;
+          if (value_t.is_wrapper())
+            local_value_t = value_t.get_wrapped_type();
+
           var = prop.get_value(obj);
+          if (local_value_t.is_pointer()) {
+            auto ctor = local_value_t.get_constructor();
+            for (auto& item : local_value_t.get_raw_type().get_constructors()) {
+              if (item.get_instantiated_type() == value_t) {
+                ctor = item;
+                break;
+              }
+            }
+            if (ctor.is_valid())
+              var = ctor.invoke();
+          }
+
           from_json_recursively(json_node_get_object(member), var);
           prop.set_value(obj, var);
         }
