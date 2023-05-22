@@ -32,89 +32,6 @@ static bool write_array (const ::rttr::variant_sequential_view &view, ::sio::mes
 static bool write_associative_container (const ::rttr::variant_associative_view &view, ::sio::message::ptr &member, bool optional=false);
 
 static bool
-to_socket_io_recursive(const ::rttr::instance &obj2, sio_object &object)
-{
-  bool did_write = false;
-  ::rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
-
-  auto prop_list = obj.get_derived_type().get_properties();
-  for (auto prop : prop_list)
-  {
-    const auto name = prop.get_name();
-    ::rttr::variant prop_value = prop.get_value(obj);
-    bool matches_default = false;
-    bool optional = METADATA::is_optional(prop, prop_value, &matches_default);
-
-    if (METADATA::is_no_serialize(prop)) {
-      continue; // skip it
-    }
-
-    if (optional && matches_default) {
-      continue; // By implication, skip it.
-    }
-
-    if (optional && !prop_value) {
-      continue; // null-like and it's optional; skip it.
-    }
-
-    ::sio::message::ptr member;
-    if (write_variant(prop_value, member, optional)) {
-      did_write = true;
-      object[name.to_string()] = member;
-    }
-    else if (!optional) {
-      // Failed write and not optional -> error condition
-      throw exceptions::RequiredMemberSerializationFailure(name.to_string());
-    }
-  }
-
-  return did_write;
-}
-
-static bool
-write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool optional)
-{
-  bool did_write = false;
-
-  // Deal with wrapped types.
-  ::rttr::variant localVar = var;
-  ::rttr::type varType = var.get_type();
-  if (varType.is_wrapper()) {
-    varType = varType.get_wrapped_type();
-    localVar = localVar.extract_wrapped_value();
-  }
-
-  if (TYPE::is_fundamental(varType)) {
-    did_write = attempt_write_fundamental_type(varType, localVar, member, optional);
-  }
-  else if (var.is_sequential_container()) {
-    did_write = write_array(var.create_sequential_view(), member, optional);
-  }
-  else if (var.is_associative_container()) {
-    did_write = write_associative_container(var.create_associative_view(), member, optional);
-  }
-  else {
-    // Not fundamental or container -- treat as object.
-    auto temp = ::sio::object_message::create();
-    if (!varType.get_properties().empty()) {
-      if (to_socket_io_recursive(var, temp->get_map())) {
-        member.swap(temp);
-        did_write = true;
-      }
-      else if (!optional) {
-        // Source member is a nullptr and required, so in the destination
-        // represent null.
-        auto temp = ::sio::null_message::create();
-        member.swap(temp);
-        did_write = true;
-      }
-    }
-  }
-
-  return did_write;
-}
-
-static bool
 attempt_write_fundamental_type(
   const ::rttr::type &t,
   const ::rttr::variant &var,
@@ -277,6 +194,89 @@ write_associative_container (
   // it's !optional.
   member = array;
   return true;
+}
+
+static bool
+write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool optional)
+{
+  bool did_write = false;
+
+  // Deal with wrapped types.
+  ::rttr::variant localVar = var;
+  ::rttr::type varType = var.get_type();
+  if (varType.is_wrapper()) {
+    varType = varType.get_wrapped_type();
+    localVar = localVar.extract_wrapped_value();
+  }
+
+  if (TYPE::is_fundamental(varType)) {
+    did_write = attempt_write_fundamental_type(varType, localVar, member, optional);
+  }
+  else if (var.is_sequential_container()) {
+    did_write = write_array(var.create_sequential_view(), member, optional);
+  }
+  else if (var.is_associative_container()) {
+    did_write = write_associative_container(var.create_associative_view(), member, optional);
+  }
+  else {
+    // Not fundamental or container -- treat as object.
+    auto temp = ::sio::object_message::create();
+    if (!varType.get_properties().empty()) {
+      if (to_socket_io_recursive(var, temp->get_map())) {
+        member.swap(temp);
+        did_write = true;
+      }
+      else if (!optional) {
+        // Source member is a nullptr and required, so in the destination
+        // represent null.
+        auto temp = ::sio::null_message::create();
+        member.swap(temp);
+        did_write = true;
+      }
+    }
+  }
+
+  return did_write;
+}
+
+static bool
+to_socket_io_recursive(const ::rttr::instance &obj2, sio_object &object)
+{
+  bool did_write = false;
+  ::rttr::instance obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
+
+  auto prop_list = obj.get_derived_type().get_properties();
+  for (auto prop : prop_list)
+  {
+    const auto name = prop.get_name();
+    ::rttr::variant prop_value = prop.get_value(obj);
+    bool matches_default = false;
+    bool optional = METADATA::is_optional(prop, prop_value, &matches_default);
+
+    if (METADATA::is_no_serialize(prop)) {
+      continue; // skip it
+    }
+
+    if (optional && matches_default) {
+      continue; // By implication, skip it.
+    }
+
+    if (optional && !prop_value) {
+      continue; // null-like and it's optional; skip it.
+    }
+
+    ::sio::message::ptr member;
+    if (write_variant(prop_value, member, optional)) {
+      did_write = true;
+      object[name.to_string()] = member;
+    }
+    else if (!optional) {
+      // Failed write and not optional -> error condition
+      throw exceptions::RequiredMemberSerializationFailure(name.to_string());
+    }
+  }
+
+  return did_write;
 }
 
 ::sio::message::ptr

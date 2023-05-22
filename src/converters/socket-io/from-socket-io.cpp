@@ -26,11 +26,11 @@ namespace lldc::reflection::converters {
 using sio_object = std::map<std::string, ::sio::message::ptr>;
 using sio_array = std::vector<::sio::message::ptr>;
 
+static void from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2);
 static void write_array_recursively (const sio_array &array, ::rttr::variant_sequential_view &view);
 static void write_associative_view_recursively (const sio_array &array, ::rttr::variant_associative_view &view);
 static ::rttr::variant extract_basic_types (const ::sio::message &message, const ::rttr::type &t);
 static ::rttr::variant extract_value (const ::sio::message &message, const ::rttr::type &t);
-static void from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2);
 
 static inline bool is_a (const ::sio::message &ref, ::sio::message::flag flag) {
   return (ref.get_flag() == flag);
