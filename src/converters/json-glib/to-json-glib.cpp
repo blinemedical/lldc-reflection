@@ -243,13 +243,15 @@ write_variant (const ::rttr::variant &var, JsonNode *node, bool optional)
         json_node_set_object(node, json_object);
         did_write = true;
       }
+      else if (!optional) {
+        // Source member is a nullptr and required, so in the destination
+        // represent null.
+        json_node_init_null(node);
+        did_write = true;
+      }
       else {
         json_object_unref(json_object);
       }
-    }
-    else {
-      // Edge case encountered
-      g_assert("Unknown edge case encountered");
     }
   }
 
@@ -278,10 +280,8 @@ to_json_recursive(const ::rttr::instance &obj2, JsonObject *json_object)
       continue; // By implication, skip it.
     }
 
-    if (!prop_value) {
-      if (optional)
-        continue; // cannot serialize, unable to retrieve value, but it's optional.
-      throw reflection::exceptions::RequiredMemberSerializationFailure(name.to_string());
+    if (optional && !prop_value) {
+      continue; // null-like and it's optional; skip it.
     }
 
     JsonNode *prop_node = json_node_alloc();
@@ -290,9 +290,11 @@ to_json_recursive(const ::rttr::instance &obj2, JsonObject *json_object)
       json_object_set_member(json_object, name.data(), prop_node);
     }
     else {
-      if (!optional)
-        g_error ("failed to serialize %s\n", name.data());
       json_node_unref(prop_node);
+      if (!optional) {
+        // Failed write and not optional -> error condition
+        throw exceptions::RequiredMemberSerializationFailure(name.to_string());
+      }
     }
   }
 

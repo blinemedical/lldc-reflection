@@ -53,10 +53,8 @@ to_socket_io_recursive(const ::rttr::instance &obj2, sio_object &object)
       continue; // By implication, skip it.
     }
 
-    if (!prop_value) {
-      if (optional)
-        continue; // cannot serialize, unable to retrieve value, but it's optional
-      throw reflection::exceptions::RequiredMemberSerializationFailure(name.to_string());
+    if (optional && !prop_value) {
+      continue; // null-like and it's optional; skip it.
     }
 
     ::sio::message::ptr member;
@@ -100,6 +98,13 @@ write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool opti
     auto temp = ::sio::object_message::create();
     if (!varType.get_properties().empty()) {
       if (to_socket_io_recursive(var, temp->get_map())) {
+        member.swap(temp);
+        did_write = true;
+      }
+      else if (!optional) {
+        // Source member is a nullptr and required, so in the destination
+        // represent null.
+        auto temp = ::sio::null_message::create();
         member.swap(temp);
         did_write = true;
       }
