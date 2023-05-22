@@ -190,17 +190,21 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
 
     switch (member_flag) {
       case ::sio::message::flag_array: {
-        if (value_t.is_sequential_container()) {
+        ::rttr::type local_value_t = value_t;
+        if (value_t.is_wrapper())
+          local_value_t = value_t.get_wrapped_type();
+
+        if (local_value_t.is_sequential_container()) {
           var = prop.get_value(obj);
           auto view = var.create_sequential_view();
           write_array_recursively(member->get_vector(), view);
         }
-        else if (value_t.is_associative_container()) {
+        else if (local_value_t.is_associative_container()) {
           var = prop.get_value(obj);
           auto view = var.create_associative_view();
           write_associative_view_recursively(member->get_vector(), view);
         }
-        else if (METADATA::is_blob(value_t)) {
+        else if (METADATA::is_blob(local_value_t)) {
           auto blob = member->get_binary();
           if (blob.get())
             var = std::string(blob.get()->c_str());

@@ -172,22 +172,27 @@ from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2)
 
     auto const value_t = prop.get_type();
     ::rttr::variant var;
+
     switch (json_node_get_node_type(member)) {
       case JSON_NODE_ARRAY:
       {
-        if (value_t.is_sequential_container()) {
+        ::rttr::type local_value_t = value_t;
+        if (value_t.is_wrapper())
+          local_value_t = value_t.get_wrapped_type();
+
+        if (local_value_t.is_sequential_container()) {
           auto json_array = json_node_get_array(member);
           var = prop.get_value(obj);
           auto view = var.create_sequential_view();
           write_array_recursively(json_array, view);
         }
-        else if (value_t.is_associative_container()) {
+        else if (local_value_t.is_associative_container()) {
           auto json_array = json_node_get_array(member);
           var = prop.get_value(obj);
           auto view = var.create_associative_view();
           write_associative_view_recursively(json_array, view);
         }
-        else if (METADATA::is_blob(value_t)) {
+        else if (METADATA::is_blob(local_value_t)) {
           auto json_str = json_to_string(member, TRUE);
           if (json_str) {
             var = std::string(json_str);
