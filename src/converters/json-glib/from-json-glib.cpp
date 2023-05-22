@@ -68,7 +68,7 @@ write_associative_view_recursively (JsonArray *json_array, ::rttr::variant_assoc
 
       if (key_mbr && value_mbr) {
         auto key_var = extract_value (key_mbr, view.get_key_type());
-        auto value_var = extract_value (value_mbr, view.get_key_type());
+        auto value_var = extract_value (value_mbr, view.get_value_type());
 
         if (key_var && value_var)
           view.insert(key_var, value_var);
