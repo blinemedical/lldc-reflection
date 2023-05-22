@@ -193,10 +193,8 @@ write_associative_container (const ::rttr::variant_associative_view &view, JsonN
 
         json_node_init_object(element, element_obj);
 
-        json_object_set_member(element_obj, AC::KEY,
-          first);
-        json_object_set_member(element_obj, AC::VALUE,
-          second);
+        json_object_set_member(element_obj, AC::KEY,   first);
+        json_object_set_member(element_obj, AC::VALUE, second);
 
         json_array_add_element(arr, element);
       }
