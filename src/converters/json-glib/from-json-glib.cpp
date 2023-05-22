@@ -214,6 +214,11 @@ from_json_recursively (JsonObject *json_obj, ::rttr::instance obj2)
         }
         break;
       }
+      case JSON_NODE_NULL:
+      {
+        prop.set_value(obj, nullptr);
+        break;
+      }
       default:
       {
         var = extract_basic_types (member, value_t);

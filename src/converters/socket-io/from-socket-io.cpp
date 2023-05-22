@@ -183,11 +183,12 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
       throw EXCEPTIONS::RequiredMemberSerializationFailure(name);
     }
     auto member = message.at(name);
+    auto member_flag = (member) ? member->get_flag() : ::sio::message::flag_null;
 
     auto const value_t = prop.get_type();
     ::rttr::variant var;
 
-    switch (member->get_flag()) {
+    switch (member_flag) {
       case ::sio::message::flag_array: {
         if (value_t.is_sequential_container()) {
           var = prop.get_value(obj);
@@ -218,6 +219,10 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
           from_socket_io_recursively(member->get_map(), var);
           prop.set_value(obj, var);
         }
+        break;
+      }
+      case ::sio::message::flag_null: {
+        prop.set_value(obj, nullptr);
         break;
       }
       default:
