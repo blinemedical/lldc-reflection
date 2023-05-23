@@ -138,4 +138,17 @@ RTTR_PLUGIN_REGISTRATION {
     .constructor<>() (::rttr::policy::ctor::as_raw_ptr)
     .property("value", &T::OptionalMemberMessage::Payload::value)
     ;
+
+  ::rttr::registration::class_<T::SimpleMessage>("simple-message")
+    .property("name", &T::SimpleMessage::name)
+    .property("payload", &T::SimpleMessage::payload)
+    ;
+
+  ::rttr::registration::class_<T::SimpleMessage::Payload>("simple-message::payload")
+    .constructor<>() (::rttr::policy::ctor::as_object)
+    .constructor<>() (::rttr::policy::ctor::as_std_shared_ptr)
+    .constructor<>() (::rttr::policy::ctor::as_raw_ptr)
+    // NOTE: 'member' is intentionally not registered, so this object will only ever have no
+    //       property members according to RTTR.
+    ;
 };

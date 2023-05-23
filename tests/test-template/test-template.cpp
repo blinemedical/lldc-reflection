@@ -178,6 +178,39 @@ TEST(Examples, SecondMessage) {
   uut_unref(temp);
 }
 
+/**
+  * @brief The 'payload' member of SimpleMessage is registered, but the Payload 'member' is not.
+  * Therefore when converting 'to' an intermediate type, the result should be an empty object
+  * (e.g., JSON '{}').  When converting 'from', unregistered properties should be skipped/ignored.
+  */
+TEST(Examples, PropertyRegistrationBehavior) {
+  SimpleMessage input, output;
+  uut_type temp;
+
+  input.name = "clever name";
+  input.payload.member = "something testy";
+
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(temp != nullptr);
+
+  EXPECT_TRUE(member_check_function(temp, "name"));
+  EXPECT_TRUE(member_check_function(temp, "payload"));
+
+  // Check the payload, that it's empty.
+#if TEST_JSON_GLIB
+  auto ref_obj = json_node_get_object(temp);
+  auto payload_obj = json_object_get_object_member(ref_obj, "payload");
+  EXPECT_EQ(0, json_object_get_size(payload_obj));
+
+#elif TEST_SOCKET_IO
+  auto ref_obj = temp->get_map();
+  auto payload_obj = ref_obj["payload"]->get_map();
+  EXPECT_EQ(0, payload_obj.size());
+#endif
+
+  uut_unref(temp);
+}
+
 TEST(Optionals, ToSkippedOnEmptyOrDefaulted) {
   /**
    * Verify that optional members are completely skipped in the 'to'

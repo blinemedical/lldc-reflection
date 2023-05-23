@@ -261,4 +261,22 @@ OptionalMemberMessage : public ApiMessage
   }
 };
 
+/**
+ * @brief The purpose of this message is to show the serialization behavior of having a
+ * struct member that has no RTTR-registered properties.
+ */
+struct COMMON_TEST_API
+SimpleMessage {
+  struct Payload {
+    std::string member;
+
+    RTTR_ENABLE();
+  };
+
+  std::string name;
+  Payload payload;
+
+  RTTR_ENABLE();
+};
+
 }; // lldc::testing
