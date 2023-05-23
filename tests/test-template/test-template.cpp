@@ -21,6 +21,22 @@
 
 using namespace lldc::testing;
 
+template <typename T>
+static bool member_check_function(T ref, const std::string& name) {
+  bool result = false;
+
+#if TEST_JSON_GLIB
+  auto ref_obj = json_node_get_object(ref);
+  result = json_object_has_member(ref_obj, name.c_str());
+
+#elif TEST_SOCKET_IO
+  auto ref_obj = ref->get_map();
+  result = (ref_obj.end() != ref_obj.find(name));
+#endif
+
+  return result;
+}
+
 /**
  * @brief Unit testing apparatus for the behavior
  * of the ApiMessage::[Get/Set]Subject API as it
@@ -160,22 +176,6 @@ TEST(Examples, SecondMessage) {
   EXPECT_EQ(input, output);
 
   uut_unref(temp);
-}
-
-template <typename T>
-static bool member_check_function(T ref, const std::string &name) {
-  bool result = false;
-
-#ifdef TEST_JSON_GLIB
-  auto ref_obj = json_node_get_object(ref);
-  result = json_object_has_member(ref_obj, name.c_str());
-
-#elif TEST_SOCKET_IO
-  auto ref_obj = ref->get_map();
-  result = (ref_obj.end() != ref_obj.find(name));
-#endif
-
-  return result;
 }
 
 TEST(Optionals, ToSkippedOnEmptyOrDefaulted) {
