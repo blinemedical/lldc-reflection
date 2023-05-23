@@ -221,18 +221,18 @@ write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool opti
   else {
     // Not fundamental or container -- treat as object.
     auto temp = ::sio::object_message::create();
-    if (!varType.get_properties().empty()) {
-      if (to_socket_io_recursive(var, temp->get_map())) {
-        member.swap(temp);
-        did_write = true;
-      }
-      else if (!optional) {
-        // Source member is a nullptr and required, so in the destination
-        // represent null.
-        auto temp = ::sio::null_message::create();
-        member.swap(temp);
-        did_write = true;
-      }
+    if (to_socket_io_recursive(var, temp->get_map())) {
+      member.swap(temp);
+      did_write = true;
+    }
+    else if (!optional) {
+      // Source member is "empty" and required.
+      // If it's a pointer-type, represent it as a nullptr
+      // If not, represent it as an empty object.
+      if (varType.is_pointer())
+        temp = ::sio::null_message::create();
+      member.swap(temp);
+      did_write = true;
     }
   }
 

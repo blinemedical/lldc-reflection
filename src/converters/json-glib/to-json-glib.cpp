@@ -236,23 +236,28 @@ write_variant (const ::rttr::variant &var, JsonNode *node, bool optional)
   }
   else {
     // Not fundamental or a container -- treat as object.
-    auto child_props = varType.get_properties();
-    if (!child_props.empty()) {
-      auto json_object = json_object_new();
-      if (to_json_recursive(var, json_object)) {
-        json_node_set_object(node, json_object);
-        did_write = true;
-      }
-      else if (!optional) {
-        // Source member is a nullptr and required, so in the destination
-        // represent null.
+    auto json_object = json_object_new();
+    if (to_json_recursive(var, json_object)) {
+      json_node_set_object(node, json_object);
+      json_object = NULL;
+      did_write = true;
+    }
+    else if (!optional) {
+      // Source member is "empty" and required.
+      // If it's a pointer-type, represent it as a nullptr
+      // If not, represent it as an empty object.
+      if (varType.is_pointer()) {
         json_node_init_null(node);
-        did_write = true;
       }
       else {
-        json_object_unref(json_object);
+        json_node_init_object(node, json_object);
+        json_object = NULL;
       }
+      did_write = true;
     }
+
+    if (json_object)
+      json_object_unref(json_object);
   }
 
   return did_write;
