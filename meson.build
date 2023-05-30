@@ -79,7 +79,7 @@ lldc_reflection_deps += rttr_dep
 # the RTTR library on the PATH variable.
 if meson.backend().startswith('vs')
   rttr_path = environment()
-  rttr_path.prepend('PATH',  meson.current_build_dir() / 'subprojects' / 'rttr')
+  rttr_path.prepend('PATH',  meson.project_build_root() / 'subprojects' / 'rttr')
   meson.add_devenv(rttr_path, method: 'prepend')
 endif
 
