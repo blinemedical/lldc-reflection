@@ -8,3 +8,4 @@ lldc_reflection_src += files(
 
 subdir('converters')
 subdir('metadata')
+subdir('type')

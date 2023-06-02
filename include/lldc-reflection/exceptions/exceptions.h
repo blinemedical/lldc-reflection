@@ -6,6 +6,7 @@
 #pragma once
 
 #include <exception>
+#include <string>
 
 namespace lldc::reflection::exceptions {
 
@@ -31,6 +32,12 @@ struct RequiredMemberSerializationFailure : public std::exception {
 
 protected:
   const std::string _member_name;
+};
+
+struct UnhandledAnyConversion : public std::exception {
+  const char* what() const throw() {
+    return "unable to convert any type";
+  }
 };
 
 }; //lldc::reflection::exceptions
