@@ -12,10 +12,12 @@
 
 #include "private/associative-containers.h"
 #include "private/metadata/metadata.h"
+#include "private/type/type.h"
 
 namespace AC = lldc::reflection::associative_containers;
 namespace METADATA = lldc::reflection::metadata;
 namespace EXCEPTIONS = lldc::reflection::exceptions;
+namespace TYPE = lldc::reflection::type;
 
 namespace lldc::reflection::converters {
 
@@ -89,16 +91,28 @@ static ::rttr::variant
 extract_basic_types (JsonNode *json_value, const ::rttr::type &t)
 {
   switch (json_node_get_value_type (json_value)) {
-    case G_TYPE_CHAR:
-      return (char) *json_node_get_string(json_value);
+    case G_TYPE_CHAR: {
+      auto ref = (char)*json_node_get_string(json_value);
+      if (TYPE::is_any(t))
+        return std::any(ref);
+      return ref;
+    }
 
-    case G_TYPE_STRING:
-      return std::string (json_node_get_string(json_value));
+    case G_TYPE_STRING: {
+      auto ref = std::string(json_node_get_string(json_value));
+      if (TYPE::is_any(t))
+        return std::any(ref);
+      return ref;
+    }
 
-    case G_TYPE_BOOLEAN:
+    case G_TYPE_BOOLEAN: {
       // Because the returned 'boolean' is typedef'd to int, we'll assert it
       // to boolean here just for the sake of it.
-      return (json_node_get_boolean (json_value));
+      auto ref = (json_node_get_boolean(json_value));
+      if (TYPE::is_any(t))
+        return std::any(ref);
+      return ref;
+    }
 
     // JsonGLIB does not store these types.  Keep this commented
     // for future reference.  They're stored as int/int64
@@ -120,12 +134,19 @@ extract_basic_types (JsonNode *json_value, const ::rttr::type &t)
       else if (t == ::rttr::type::get<uint64_t>()) {
         return static_cast<uint64_t> (temp);
       }
+      else if (TYPE::is_any(t)) {
+        return std::any(temp);
+      }
       return temp;
     }
 
     case G_TYPE_FLOAT:
-    case G_TYPE_DOUBLE:
-      return json_node_get_double (json_value);
+    case G_TYPE_DOUBLE: {
+      auto ref = json_node_get_double(json_value);
+      if (TYPE::is_any(t))
+        return std::any(ref);
+      return ref;
+    }
 
     default:
       break;

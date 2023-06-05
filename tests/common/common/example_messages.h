@@ -19,6 +19,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <any>
 
 namespace lldc::testing {
 
@@ -275,6 +276,13 @@ SimpleMessage {
 
   std::string name;
   Payload payload;
+
+  RTTR_ENABLE();
+};
+
+struct COMMON_TEST_API
+MessageWithAnys {
+  std::map<std::string, std::any> properties;
 
   RTTR_ENABLE();
 };

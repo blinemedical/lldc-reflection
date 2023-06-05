@@ -406,6 +406,38 @@ TEST(Optionals, DefaultedValueType) {
   uut_unref(temp);
 }
 
+TEST(StdAny, MapWithAny) {
+  /**
+   * The object has a parameter, 'properties' which is a std::map<std::string, std::any>.
+   * This test validates that the library handle inferring what to insert for "any".
+   */
+  MessageWithAnys input, output;
+  uut_type temp;
+
+  input.properties["int-valued"] = (int) 1234;
+  input.properties["string-valued"] = std::string("something");
+
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(temp);
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input.properties.size(), output.properties.size());
+
+  // NOTE: because of the way integers are handled in the intermediate
+  // types, and the amorphous nature of 'any' in RTTR, we basically "give up"
+  // on the "from" path here and the output type may have been promoted to
+  // a higher bit width than the source.
+  EXPECT_EQ(
+    std::any_cast<int>(input.properties["int-valued"]),
+    std::any_cast<int64_t>(output.properties["int-valued"])
+  );
+  EXPECT_EQ(
+    std::any_cast<std::string>(input.properties["string-valued"]),
+    std::any_cast<std::string>(output.properties["string-valued"])
+  );
+
+  uut_unref(temp);
+}
+
 int main (int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

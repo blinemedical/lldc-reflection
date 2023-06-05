@@ -151,4 +151,8 @@ RTTR_PLUGIN_REGISTRATION {
     // NOTE: 'member' is intentionally not registered, so this object will only ever have no
     //       property members according to RTTR.
     ;
+
+  ::rttr::registration::class_<T::MessageWithAnys>("message-with-anys")
+    .property("properties", &T::MessageWithAnys::properties)
+    ;
 };

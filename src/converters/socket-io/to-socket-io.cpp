@@ -209,7 +209,11 @@ write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool opti
     localVar = localVar.extract_wrapped_value();
   }
 
-  if (TYPE::is_fundamental(varType)) {
+  // If the varType is holding a std::any, it needs to be unpacked.
+  if (TYPE::is_any(varType)) {
+    did_write = write_variant(TYPE::extract_any_value(localVar), member, optional);
+  }
+  else if (TYPE::is_fundamental(varType)) {
     did_write = attempt_write_fundamental_type(varType, localVar, member, optional);
   }
   else if (var.is_sequential_container()) {

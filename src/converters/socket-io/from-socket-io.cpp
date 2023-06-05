@@ -16,10 +16,12 @@
 
 #include "private/associative-containers.h"
 #include "private/metadata/metadata.h"
+#include "private/type/type.h"
 
 namespace AC = lldc::reflection::associative_containers;
 namespace METADATA = lldc::reflection::metadata;
 namespace EXCEPTIONS = lldc::reflection::exceptions;
+namespace TYPE = lldc::reflection::type;
 
 namespace lldc::reflection::converters {
 
@@ -114,10 +116,18 @@ extract_basic_types (const ::sio::message &message, const ::rttr::type &t)
   switch (message.get_flag()) {
     // Big fall-through to default for data marshalling
     // basic types.
-    case ::sio::message::flag_boolean:
-      return message.get_bool();
-    case ::sio::message::flag_double:
-      return message.get_double();
+    case ::sio::message::flag_boolean: {
+      auto ref = message.get_bool();
+      if (TYPE::is_any(t))
+        return std::any(ref);
+      return ref;
+    }
+    case ::sio::message::flag_double: {
+      auto ref = message.get_double();
+      if (TYPE::is_any(t))
+        return std::any(ref);
+      return ref;
+    }
     case ::sio::message::flag_integer: {
       auto temp = message.get_int();
       if (t == ::rttr::type::get<uint8_t>()) {
@@ -132,11 +142,17 @@ extract_basic_types (const ::sio::message &message, const ::rttr::type &t)
       else if (t == ::rttr::type::get<uint64_t>()) {
         return static_cast<uint64_t> (temp);
       }
+      else if (TYPE::is_any(t)) {
+        return std::any(temp);
+      }
       return temp;
     }
-      return message.get_int();
-    case ::sio::message::flag_string:
-      return message.get_string();
+    case ::sio::message::flag_string: {
+      auto ref = message.get_string();
+      if (TYPE::is_any(t))
+        return std::any(ref);
+      return ref;
+    }
     default:
       break;
   }
