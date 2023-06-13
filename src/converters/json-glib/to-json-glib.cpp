@@ -232,16 +232,16 @@ write_variant (const ::rttr::variant &var, JsonNode *node, bool optional)
   else if (TYPE::is_fundamental(varType)) {
     did_write = attempt_write_fundamental_type(varType, localVar, node, optional);
   }
-  else if (var.is_sequential_container()) {
-    did_write = write_array(var.create_sequential_view(), node, optional);
+  else if (localVar.is_sequential_container()) {
+    did_write = write_array(localVar.create_sequential_view(), node, optional);
   }
-  else if (var.is_associative_container()) {
-    did_write = write_associative_container(var.create_associative_view(), node, optional);
+  else if (localVar.is_associative_container()) {
+    did_write = write_associative_container(localVar.create_associative_view(), node, optional);
   }
   else {
     // Not fundamental or a container -- treat as object.
     auto json_object = json_object_new();
-    if (to_json_recursive(var, json_object)) {
+    if (to_json_recursive(localVar, json_object)) {
       json_node_set_object(node, json_object);
       json_object = NULL;
       did_write = true;

@@ -216,16 +216,16 @@ write_variant(const ::rttr::variant &var, ::sio::message::ptr &member, bool opti
   else if (TYPE::is_fundamental(varType)) {
     did_write = attempt_write_fundamental_type(varType, localVar, member, optional);
   }
-  else if (var.is_sequential_container()) {
-    did_write = write_array(var.create_sequential_view(), member, optional);
+  else if (localVar.is_sequential_container()) {
+    did_write = write_array(localVar.create_sequential_view(), member, optional);
   }
-  else if (var.is_associative_container()) {
-    did_write = write_associative_container(var.create_associative_view(), member, optional);
+  else if (localVar.is_associative_container()) {
+    did_write = write_associative_container(localVar.create_associative_view(), member, optional);
   }
   else {
     // Not fundamental or container -- treat as object.
     auto temp = ::sio::object_message::create();
-    if (to_socket_io_recursive(var, temp->get_map())) {
+    if (to_socket_io_recursive(localVar, temp->get_map())) {
       member.swap(temp);
       did_write = true;
     }
