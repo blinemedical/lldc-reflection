@@ -159,25 +159,26 @@ extract_value (const ::sio::message &message, const ::rttr::type &t)
   ::rttr::variant extracted_value = extract_basic_types(message, t);
   const bool could_convert = extracted_value.can_convert(t);
 
-  if (!could_convert) {
+  if (could_convert) {
+    extracted_value.convert(t);
+  }
+  else {
     if (is_an_object(message)) {
       auto local_value_t = t;
 
       if (local_value_t.is_wrapper())
         local_value_t = local_value_t.get_wrapped_type();
 
-      if (local_value_t.is_pointer()) {
-        ::rttr::constructor ctor = local_value_t.get_constructor();
-        for (auto &item : local_value_t.get_raw_type().get_constructors()) {
-          if (item.get_instantiated_type() == t) {
-            ctor = item;
-            break;
-          }
+      ::rttr::constructor ctor = local_value_t.get_constructor();
+      for (auto &item : local_value_t.get_raw_type().get_constructors()) {
+        if (item.get_instantiated_type() == t) {
+          ctor = item;
+          break;
         }
-
-        if (ctor.is_valid())
-          extracted_value = ctor.invoke();
       }
+
+      if (ctor.is_valid())
+        extracted_value = ctor.invoke();
 
       from_socket_io_recursively (message.get_map(), extracted_value);
     }

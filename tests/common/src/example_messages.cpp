@@ -143,6 +143,9 @@ RTTR_PLUGIN_REGISTRATION {
     ;
 
   ::rttr::registration::class_<T::SimpleMessage>("simple-message")
+    .constructor<>() (::rttr::policy::ctor::as_object)
+    .constructor<>() (::rttr::policy::ctor::as_raw_ptr)
+    .constructor<>() (::rttr::policy::ctor::as_std_shared_ptr)
     .property("name", &T::SimpleMessage::name)
     .property("payload", &T::SimpleMessage::payload)
     ;
@@ -157,5 +160,12 @@ RTTR_PLUGIN_REGISTRATION {
 
   ::rttr::registration::class_<T::MessageWithAnys>("message-with-anys")
     .property("properties", &T::MessageWithAnys::properties)
+    ;
+
+  ::rttr::registration::class_<T::MessageWithVectors>("message-with-vectors")
+    .property("v-int", &T::MessageWithVectors::v_int)
+    .property("vv-int", &T::MessageWithVectors::vv_int)
+    .property("v-sptr", &T::MessageWithVectors::v_sptr)
+    .property("v-obj", &T::MessageWithVectors::v_obj)
     ;
 };

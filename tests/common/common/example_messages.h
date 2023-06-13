@@ -287,4 +287,14 @@ MessageWithAnys {
   RTTR_ENABLE();
 };
 
+struct COMMON_TEST_API
+  MessageWithVectors {
+  std::vector<int> v_int;
+  std::vector<std::vector<int>> vv_int;
+  std::vector<std::shared_ptr<SimpleMessage>> v_sptr;
+  std::vector<SimpleMessage> v_obj;
+
+  RTTR_ENABLE();
+};
+
 }; // lldc::testing

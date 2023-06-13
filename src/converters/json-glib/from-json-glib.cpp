@@ -154,25 +154,26 @@ extract_value (JsonNode *json_value, const ::rttr::type &t)
   ::rttr::variant extracted_value = extract_basic_types (json_value, t);
   const bool could_convert = extracted_value.can_convert(t);
 
-  if (!could_convert) {
+  if (could_convert) {
+    extracted_value.convert(t);
+  }
+  else {
     if (JSON_NODE_HOLDS_OBJECT(json_value)) {
       auto local_value_t = t;
 
       if (local_value_t.is_wrapper())
         local_value_t = local_value_t.get_wrapped_type();
 
-      if (local_value_t.is_pointer()) {
-        ::rttr::constructor ctor = local_value_t.get_constructor();
-        for (auto& item : local_value_t.get_raw_type().get_constructors()) {
-          if (item.get_instantiated_type() == t) {
-            ctor = item;
-            break;
-          }
+      ::rttr::constructor ctor = local_value_t.get_constructor();
+      for (auto& item : local_value_t.get_raw_type().get_constructors()) {
+        if (item.get_instantiated_type() == t) {
+          ctor = item;
+          break;
         }
-
-        if (ctor.is_valid())
-          extracted_value = ctor.invoke();
       }
+
+      if (ctor.is_valid())
+        extracted_value = ctor.invoke();
 
       from_json_recursively (json_node_get_object(json_value), extracted_value);
     }

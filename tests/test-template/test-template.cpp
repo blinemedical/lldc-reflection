@@ -482,6 +482,66 @@ TEST(Pointers, DestinationIsRawPtr) {
   uut_unref(temp);
 }
 
+TEST(Vectors, VectorOfValues) {
+  MessageWithVectors input, output;
+  uut_type temp;
+
+  input.v_int = { 1, 2, 3 };
+
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(temp);
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input.v_int, output.v_int);
+
+  uut_unref(temp);
+}
+
+TEST(Vectors, VectorOfVectorOfValues) {
+  MessageWithVectors input, output;
+  uut_type temp;
+
+  input.vv_int.push_back({ 1, 2, 3 });
+
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(temp);
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(input.vv_int, output.vv_int);
+
+  uut_unref(temp);
+}
+
+TEST(Vectors, VectorOfSharedPointers) {
+  MessageWithVectors input, output;
+  uut_type temp;
+
+  input.v_sptr.push_back(std::make_shared<SimpleMessage>());
+  input.v_sptr[0]->name = "Some Name";
+
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(temp);
+  EXPECT_TRUE(from_conversion(temp, output));
+  ASSERT_EQ(1, output.v_sptr.size());
+  EXPECT_EQ(input.v_sptr[0]->name, output.v_sptr[0]->name);
+
+  uut_unref(temp);
+}
+
+TEST(Vectors, VectorOfValueObjects) {
+  MessageWithVectors input, output;
+  uut_type temp;
+
+  input.v_obj.resize(1);
+  input.v_obj[0].name = "Some Other Name";
+
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(temp);
+  EXPECT_TRUE(from_conversion(temp, output));
+  ASSERT_EQ(1, output.v_obj.size());
+  EXPECT_EQ(input.v_obj[0].name, output.v_obj[0].name);
+
+  uut_unref(temp);
+}
+
 int main (int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
