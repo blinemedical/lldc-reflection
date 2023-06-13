@@ -81,6 +81,9 @@ RTTR_PLUGIN_REGISTRATION {
    * @brief Register the 'SecondMessage' type with its body of fields.
    */
   ::rttr::registration::class_<T::SecondMessage>("second-message")
+    .constructor<>()(::rttr::policy::ctor::as_object)
+    .constructor<>()(::rttr::policy::ctor::as_raw_ptr)
+    .constructor<>()(::rttr::policy::ctor::as_std_shared_ptr)
     .property("some_string", &T::SecondMessage::some_string)
     .property("some_char",   &T::SecondMessage::some_char)
     .property("some_bool",   &T::SecondMessage::some_bool)

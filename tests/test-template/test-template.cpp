@@ -438,6 +438,50 @@ TEST(StdAny, MapWithAny) {
   uut_unref(temp);
 }
 
+TEST(Pointers, DestinationIsStdShared) {
+  std::shared_ptr<SecondMessage> input, output;
+  uut_type temp;
+
+  input = std::make_shared<SecondMessage>();
+  input->some_bool = true;
+  input->some_double = 42.0;
+  input->some_char = 'X';
+
+  // You must provide the converter with an output instance
+  output = std::make_shared<SecondMessage>();
+
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(temp);
+  EXPECT_TRUE(from_conversion(temp, output));
+  EXPECT_EQ(*input, *output);
+
+  uut_unref(temp);
+}
+
+TEST(Pointers, DestinationIsRawPtr) {
+  SecondMessage* input, * output;
+  uut_type temp;
+
+  input = new SecondMessage();
+  input->some_float = 86.0f;
+  input->some_string = "A String";
+  input->some_uint8 = 0xB;
+
+  // You must provide the converter with an output instance
+  output = new SecondMessage();
+
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE(temp);
+  EXPECT_TRUE(from_conversion(temp, output));
+  ASSERT_TRUE(output);
+  EXPECT_EQ(*input, *output);
+
+  delete input;
+  delete output;
+
+  uut_unref(temp);
+}
+
 int main (int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

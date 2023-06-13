@@ -116,18 +116,18 @@ SecondMessage : public ApiMessage {
   }
 
   std::string some_string;
-  char        some_char;
-  bool        some_bool;
-  float       some_float;
-  double      some_double;
-  uint64_t    some_uint64;
-  uint32_t    some_uint32;
-  uint16_t    some_uint16;
-  uint8_t     some_uint8;
-  int64_t     some_int64;
-  int32_t     some_int32;
-  int16_t     some_int16;
-  int8_t      some_int8;
+  char        some_char   = '\0';
+  bool        some_bool   = false;
+  float       some_float  = 0.0f;
+  double      some_double = 0.0;
+  uint64_t    some_uint64 = 0;
+  uint32_t    some_uint32 = 0;
+  uint16_t    some_uint16 = 0;
+  uint8_t     some_uint8  = 0;
+  int64_t     some_int64  = 0;
+  int32_t     some_int32  = 0;
+  int16_t     some_int16  = 0;
+  int8_t      some_int8   = 0;
 
   RTTR_ENABLE(ApiMessage);
 };
