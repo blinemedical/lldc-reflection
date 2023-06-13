@@ -41,16 +41,10 @@ write_array_recursively (JsonArray *json_array, ::rttr::variant_sequential_view 
       auto sub_array_view = view.get_value(i).create_sequential_view();
       write_array_recursively(json_node_get_array(element), sub_array_view);
     }
-    else if (JSON_NODE_HOLDS_OBJECT(element)) {
-      ::rttr::variant var_tmp = view.get_value(i);
-      ::rttr::variant wrapped_var = var_tmp.extract_wrapped_value();
-      from_json_recursively (json_node_get_object(element), wrapped_var);
-      view.set_value (i, wrapped_var);
-    }
-    else if (JSON_NODE_HOLDS_VALUE (element)) {
-      ::rttr::variant extracted_value = extract_basic_types (element, array_value_type);
-      if (extracted_value.convert(array_value_type))
-        view.set_value(i, extracted_value);
+    else {
+      auto var = extract_value(element, array_value_type);
+      if (var.is_valid())
+        view.set_value(i, var);
     }
   }
 }
@@ -162,12 +156,24 @@ extract_value (JsonNode *json_value, const ::rttr::type &t)
 
   if (!could_convert) {
     if (JSON_NODE_HOLDS_OBJECT(json_value)) {
-      ::rttr::constructor ctor = t.get_constructor();
-      for (auto &item : t.get_constructors()) {
-        if (item.get_instantiated_type() == t)
-          ctor = item;
+      auto local_value_t = t;
+
+      if (local_value_t.is_wrapper())
+        local_value_t = local_value_t.get_wrapped_type();
+
+      if (local_value_t.is_pointer()) {
+        ::rttr::constructor ctor = local_value_t.get_constructor();
+        for (auto& item : local_value_t.get_raw_type().get_constructors()) {
+          if (item.get_instantiated_type() == t) {
+            ctor = item;
+            break;
+          }
+        }
+
+        if (ctor.is_valid())
+          extracted_value = ctor.invoke();
       }
-      extracted_value = ctor.invoke();
+
       from_json_recursively (json_node_get_object(json_value), extracted_value);
     }
   }

@@ -68,16 +68,10 @@ write_array_recursively (const sio_array &array, ::rttr::variant_sequential_view
       auto sub_array_view = view.get_value(i).create_sequential_view();
       write_array_recursively(element->get_vector(), sub_array_view);
     }
-    else if (is_an_object(*element)) {
-      ::rttr::variant var_tmp = view.get_value(i);
-      ::rttr::variant wrapped_var = var_tmp.extract_wrapped_value();
-      from_socket_io_recursively (element->get_map(), wrapped_var);
-      view.set_value (i, wrapped_var);
-    }
-    else if (is_a_basic_type(*element)) {
-      ::rttr::variant extracted_value = extract_basic_types(*element, array_value_type);
-      if (extracted_value.convert(array_value_type))
-        view.set_value(i, extracted_value);
+    else {
+      auto var = extract_value(*element, array_value_type);
+      if (var.is_valid())
+        view.set_value(i, var);
     }
   }
 }
@@ -167,15 +161,24 @@ extract_value (const ::sio::message &message, const ::rttr::type &t)
 
   if (!could_convert) {
     if (is_an_object(message)) {
-      ::rttr::constructor ctor = t.get_constructor();
-      for (auto &item : t.get_constructors()) {
-        if (item.get_instantiated_type() == t) {
-          ctor = item;
-          break;
+      auto local_value_t = t;
+
+      if (local_value_t.is_wrapper())
+        local_value_t = local_value_t.get_wrapped_type();
+
+      if (local_value_t.is_pointer()) {
+        ::rttr::constructor ctor = local_value_t.get_constructor();
+        for (auto &item : local_value_t.get_raw_type().get_constructors()) {
+          if (item.get_instantiated_type() == t) {
+            ctor = item;
+            break;
+          }
         }
+
+        if (ctor.is_valid())
+          extracted_value = ctor.invoke();
       }
 
-      extracted_value = ctor.invoke();
       from_socket_io_recursively (message.get_map(), extracted_value);
     }
   }
