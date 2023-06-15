@@ -1,0 +1,132 @@
+From 750e892dd8db37511663201453490d8d4928490b Mon Sep 17 00:00:00 2001
+From: Thomas Goodwin <thomas.goodwin@laerdal.com>
+Date: Thu, 15 Jun 2023 14:00:44 -0400
+Subject: [PATCH] patch for min/max macros in Windows.h
+
+Wrapping the use of max/min with parenthesis prevents
+macro expansion so the STL version is correctly compiled/used.
+
+Signed-off-by: Thomas Goodwin <thomas.goodwin@laerdal.com>
+---
+ src/rttr/detail/conversion/number_conversion.h   | 16 ++++++++--------
+ src/rttr/detail/variant/variant_compare.cpp      |  2 +-
+ src/rttr/detail/variant/variant_data_converter.h | 12 ++++++------
+ 3 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/src/rttr/detail/conversion/number_conversion.h b/src/rttr/detail/conversion/number_conversion.h
+index ac40c63..db26ddd 100644
+--- a/src/rttr/detail/conversion/number_conversion.h
++++ b/src/rttr/detail/conversion/number_conversion.h
+@@ -66,7 +66,7 @@ convert_to(const F& from, T& to)
+     if (from < 0)
+         return false; // value too small
+ 
+-    if (static_cast<typename std::make_unsigned<F>::type>(from) > std::numeric_limits<T>::max())
++    if (static_cast<typename std::make_unsigned<F>::type>(from) > (std::numeric_limits<T>::max)())
+         return false; // value too large
+ 
+     to = static_cast<T>(from);
+@@ -82,7 +82,7 @@ typename std::enable_if<is_integer<F, T>::value &&
+                         bool>::type
+ convert_to(const F& from, T& to)
+ {
+-    if (from > static_cast<typename std::make_unsigned<T>::type>(std::numeric_limits<T>::max()))
++    if (from > static_cast<typename std::make_unsigned<T>::type>((std::numeric_limits<T>::max)()))
+         return false; // value too large
+ 
+     to = static_cast<T>(from);
+@@ -98,9 +98,9 @@ typename std::enable_if<is_integer<F, T>::value &&
+                         bool>::type
+ convert_to(const F& from, T& to)
+ {
+-    if (from > std::numeric_limits<T>::max())
++    if (from > ((std::numeric_limits<T>::max)()))
+         return false; // value too large
+-    else if (from < std::numeric_limits<T>::min())
++    else if (from < (std::numeric_limits<T>::min)())
+         return false; // value too small
+ 
+     to = static_cast<T>(from);
+@@ -116,7 +116,7 @@ typename std::enable_if<is_integer<F, T>::value &&
+                         bool>::type
+ convert_to(const F& from, T& to)
+ {
+-    if (from > std::numeric_limits<T>::max())
++    if (from > ((std::numeric_limits<T>::max)()))
+         return false; // value too large
+ 
+     to = static_cast<T>(from);
+@@ -134,9 +134,9 @@ typename std::enable_if<std::is_floating_point<F>::value &&
+                         bool>::type
+ convert_to(const F& from, T& to)
+ {
+-    if (from > std::numeric_limits<T>::max())
++    if (from > ((std::numeric_limits<T>::max)()))
+         return false; // value too large
+-    else if (from < -std::numeric_limits<T>::max())
++    else if (from < -((std::numeric_limits<T>::max)()))
+         return false; // value to small
+ 
+     to = static_cast<T>(from);
+@@ -151,7 +151,7 @@ typename std::enable_if<std::is_floating_point<F>::value &&
+                         bool>::type
+ convert_to(const F& from, T& to)
+ {
+-    if (from < 0 || from > std::numeric_limits<T>::max())
++    if (from < 0 || from > ((std::numeric_limits<T>::max)()))
+         return false; // value too large
+ 
+     to = static_cast<T>(from);
+diff --git a/src/rttr/detail/variant/variant_compare.cpp b/src/rttr/detail/variant/variant_compare.cpp
+index 60eeebf..921ad69 100644
+--- a/src/rttr/detail/variant/variant_compare.cpp
++++ b/src/rttr/detail/variant/variant_compare.cpp
+@@ -48,7 +48,7 @@ static RTTR_INLINE bool is_floating_point(const type& type)
+ 
+ static RTTR_INLINE bool almost_equal(double p1, double p2)
+ {
+-    return (std::abs(p1 - p2) * 1000000000000. <= std::min(std::abs(p1), std::abs(p2)));
++    return (std::abs(p1 - p2) * 1000000000000. <= (std::min)(std::abs(p1), std::abs(p2)));
+ }
+ 
+ /////////////////////////////////////////////////////////////////////////////////////////
+diff --git a/src/rttr/detail/variant/variant_data_converter.h b/src/rttr/detail/variant/variant_data_converter.h
+index d0e94e4..a371020 100644
+--- a/src/rttr/detail/variant/variant_data_converter.h
++++ b/src/rttr/detail/variant/variant_data_converter.h
+@@ -1034,8 +1034,8 @@ struct RTTR_API convert_from<float>
+ {
+     static RTTR_INLINE bool to(const float& from, bool& to)
+     {
+-        to = !(from <= std::numeric_limits<float>::min() &&
+-               from >= -1 * std::numeric_limits<float>::min());
++        to = !(from <= (std::numeric_limits<float>::min)() &&
++               from >= -1 * (std::numeric_limits<float>::min)());
+ 
+         return true;
+     }
+@@ -1115,8 +1115,8 @@ struct RTTR_API convert_from<double>
+ {
+     static RTTR_INLINE bool to(const double& from, bool& to)
+     {
+-        to = !(from <= std::numeric_limits<double>::min() &&
+-               from >= -1 * std::numeric_limits<double>::min());
++        to = !(from <= (std::numeric_limits<double>::min)() &&
++               from >= -1 * (std::numeric_limits<double>::min)());
+ 
+         return true;
+     }
+@@ -1168,8 +1168,8 @@ struct RTTR_API convert_from<double>
+ 
+     static RTTR_INLINE bool to(const double& from, float& to)
+     {
+-        RTTR_CONSTEXPR_OR_CONST double float_min = -1 * std::numeric_limits<float>::max();
+-        RTTR_CONSTEXPR_OR_CONST double float_max = std::numeric_limits<float>::max();
++        RTTR_CONSTEXPR_OR_CONST double float_min = -1 * (std::numeric_limits<float>::max)();
++        RTTR_CONSTEXPR_OR_CONST double float_max = (std::numeric_limits<float>::max)();
+         if (from < float_min || from > float_max)
+             return false;
+ 
+-- 
+2.33.1.windows.1
+

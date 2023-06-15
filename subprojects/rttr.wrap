@@ -3,5 +3,7 @@ directory=rttr
 url=https://github.com/rttrorg/rttr
 revision=7edbd58
 
+diff_files = rttr/0001-patch-for-min-max-macros-in-Windows.h.patch
+
 [provide]
 dependency_names = rttr, rttr_core
