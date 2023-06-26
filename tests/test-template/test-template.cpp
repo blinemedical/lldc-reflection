@@ -86,7 +86,7 @@ TEST(Examples, SetOnceBehavior) {
 TEST(Examples, GuardIncorrectConversions) {
   FirstMessage uut_first;
   SecondMessage uut_second;
-  uut_type converted_first;
+  uut_type converted_first = nullptr;
 
   EXPECT_NE(uut_first.GetSubject(), uut_second.GetSubject());
   EXPECT_NO_THROW(converted_first = to_conversion(uut_first));
@@ -105,7 +105,7 @@ TEST(Examples, InspectableProperty) {
   FirstMessage first;
   SecondMessage second;
   SecondMessage input;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   EXPECT_NO_THROW(temp = to_conversion(input));
   EXPECT_TRUE(from_conversion(temp, tester));
@@ -125,7 +125,7 @@ TEST(Examples, ApiMessage) {
    */
   ApiMessage uut (Subject::first_message);
   ApiMessage out;
-  uut_type converted_uut;
+  uut_type converted_uut = nullptr;
 
   EXPECT_NO_THROW(converted_uut = to_conversion(uut));
   EXPECT_TRUE(from_conversion(converted_uut, out));
@@ -136,7 +136,7 @@ TEST(Examples, ApiMessage) {
 
 TEST(Examples, FirstMessage) {
   FirstMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.body.data["some_key"] = "some_value";
   EXPECT_NO_THROW(temp = to_conversion(input));
@@ -148,7 +148,7 @@ TEST(Examples, FirstMessage) {
 
 TEST(Examples, SecondMessage) {
   SecondMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   // Run some values through every member to validate
   // the behavior and integrity of the conversion.
@@ -185,7 +185,7 @@ TEST(Examples, SecondMessage) {
   */
 TEST(Examples, PropertyRegistrationBehavior) {
   SimpleMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.name = "clever name";
   input.payload.member = "something testy";
@@ -228,7 +228,7 @@ TEST(Optionals, ToSkippedOnEmptyOrDefaulted) {
    * NOTE: There are other optional members which will not be skipped
    */
   OptionalMemberMessage input;
-  uut_type temp;
+  uut_type temp = nullptr;
   std::vector<std::string> optional_names = {
     "optional_string",
     "optional_vector",
@@ -279,7 +279,7 @@ TEST(Optionals, MissingRequiredWillFail) {
    * when restored from an empty object.
    */
   OptionalMemberMessage output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   // Verify that from fails if a required container member
   // is not given in the intermediate class.
@@ -294,7 +294,7 @@ TEST(Optionals, MissingRequiredWillFail) {
 
 TEST(Optionals, String) {
   OptionalMemberMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.optional_string = "is now set";
   EXPECT_NO_THROW(temp = to_conversion(input));
@@ -306,7 +306,7 @@ TEST(Optionals, String) {
 
 TEST(Optionals, Vector) {
   OptionalMemberMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.optional_vector.push_back(5);
   EXPECT_NO_THROW(temp = to_conversion(input));
@@ -318,7 +318,7 @@ TEST(Optionals, Vector) {
 
 TEST(Optionals, Map) {
   OptionalMemberMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.optional_map["test_value"] = 42;
   EXPECT_NO_THROW(temp = to_conversion(input));
@@ -330,7 +330,7 @@ TEST(Optionals, Map) {
 
 TEST(Optionals, SharedPointer) {
   OptionalMemberMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.optional_sptr = std::make_shared<OptionalMemberMessage::Payload>();
   input.optional_sptr->value = 53;
@@ -343,7 +343,7 @@ TEST(Optionals, SharedPointer) {
 
 TEST(Optionals, RawPointer) {
   OptionalMemberMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.optional_rawptr = new OptionalMemberMessage::Payload();
   input.optional_rawptr->value = 87;
@@ -356,7 +356,7 @@ TEST(Optionals, RawPointer) {
 
 TEST(Optionals, ObjectByValue) {
   OptionalMemberMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.optional_obj.value = 32;
   EXPECT_NO_THROW(temp = to_conversion(input));
@@ -368,7 +368,7 @@ TEST(Optionals, ObjectByValue) {
 
 TEST(Optionals, ValueType) {
   OptionalMemberMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.optional_uint64 = 58;
   EXPECT_NO_THROW(temp = to_conversion(input));
@@ -387,7 +387,7 @@ TEST(Optionals, DefaultedValueType) {
    * existed in the intermediate stage and the output as the new value.
    */
   OptionalMemberMessage input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   EXPECT_EQ(input.optional_defaulted_uint64, OptionalMemberMessage::DEFAULT_U64_VALUE);
   EXPECT_NO_THROW(temp = to_conversion(input));
@@ -412,7 +412,7 @@ TEST(StdAny, MapWithAny) {
    * This test validates that the library handle inferring what to insert for "any".
    */
   MessageWithAnys input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.properties["int-valued"] = (int) 1234;
   input.properties["string-valued"] = std::string("something");
@@ -440,7 +440,7 @@ TEST(StdAny, MapWithAny) {
 
 TEST(Pointers, DestinationIsStdShared) {
   std::shared_ptr<SecondMessage> input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input = std::make_shared<SecondMessage>();
   input->some_bool = true;
@@ -460,7 +460,7 @@ TEST(Pointers, DestinationIsStdShared) {
 
 TEST(Pointers, DestinationIsRawPtr) {
   SecondMessage* input, * output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input = new SecondMessage();
   input->some_float = 86.0f;
@@ -484,7 +484,7 @@ TEST(Pointers, DestinationIsRawPtr) {
 
 TEST(Vectors, VectorOfValues) {
   MessageWithVectors input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.v_int = { 1, 2, 3 };
 
@@ -498,7 +498,7 @@ TEST(Vectors, VectorOfValues) {
 
 TEST(Vectors, VectorOfVectorOfValues) {
   MessageWithVectors input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.vv_int.push_back({ 1, 2, 3 });
 
@@ -512,7 +512,7 @@ TEST(Vectors, VectorOfVectorOfValues) {
 
 TEST(Vectors, VectorOfSharedPointers) {
   MessageWithVectors input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.v_sptr.push_back(std::make_shared<SimpleMessage>());
   input.v_sptr[0]->name = "Some Name";
@@ -528,7 +528,7 @@ TEST(Vectors, VectorOfSharedPointers) {
 
 TEST(Vectors, VectorOfValueObjects) {
   MessageWithVectors input, output;
-  uut_type temp;
+  uut_type temp = nullptr;
 
   input.v_obj.resize(1);
   input.v_obj[0].name = "Some Other Name";
