@@ -181,6 +181,9 @@ OptionalMemberMessage : public ApiMessage
   }
 
   struct Payload {
+    Payload() {}
+    virtual ~Payload() {}
+
     int32_t value;
 
     friend bool operator==(const Payload& lhs, const Payload& rhs) {
