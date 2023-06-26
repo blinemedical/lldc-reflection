@@ -296,7 +296,7 @@ to_socket_io (::rttr::instance object)
     }
   }
 
-  return std::move(out);
+  return out;
 }
 
 }; // lldc::reflection::converters
