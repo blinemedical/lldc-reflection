@@ -80,12 +80,4 @@ is_no_serialize(const ::rttr::property &property) {
   return false;
 }
 
-template <typename T>
-bool is_blob(const T &rttr_t) {
-  auto md = rttr_t.get_metadata(metadata::BLOB);
-  if (md.is_valid())
-    return md.to_bool();
-  return false;
-}
-
 }; // lldc::reflection::metadata
