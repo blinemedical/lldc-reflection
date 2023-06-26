@@ -26,6 +26,8 @@ namespace lldc::testing {
       throw ::lldc::reflection::exceptions::ReferenceValueComparisonMismatch();
     _subject = subject;
   }
+
+  const uint64_t OptionalMemberMessage::DEFAULT_U64_VALUE = 86;
 };
 
 

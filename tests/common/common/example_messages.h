@@ -152,7 +152,7 @@ SecondMessage : public ApiMessage {
 struct COMMON_TEST_API
 OptionalMemberMessage : public ApiMessage
 {
-  static const uint64_t DEFAULT_U64_VALUE = 86;
+  static const uint64_t DEFAULT_U64_VALUE;
 
   OptionalMemberMessage() :
     ApiMessage(Subject::optional_member_message),
