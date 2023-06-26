@@ -8,7 +8,6 @@
  */
 
 #include <iostream>
-#include <format>
 
 #include <lldc-reflection/converters/socket-io.h>
 #include <lldc-reflection/metadata/metadata.h>
