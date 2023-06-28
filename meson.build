@@ -135,3 +135,10 @@ lldc_reflection_dep = declare_dependency(
 
 unset_variable('cdata')
 subdir('tests')
+
+if get_option('tutorial').enabled()
+  if not json_glib_dep.found()
+    error('jsonglib option must be enabled and found for the tutorial to work')
+  endif
+  subdir('tutorial')
+endif

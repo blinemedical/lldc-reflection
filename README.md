@@ -25,3 +25,9 @@ Aside from depending against this library, one must declare C++ structures accor
 > NOTE: `static` libraries can be used, however only one location throughout the entire codebase may register those types using `RTTR_REGISTER`.  The RTTR documentation makes a more vague statement about the use of these macros, however in testing, this previous statement is true.  If you want to register types from multiple locations, the libraries must all be dynamic and `RTTR_PLUGIN_REGISTRATION` used.
 
 This library includes a pair of headers at the top-level, `declaration.h` and `registration.h`, to help with organizing a codebase with the above concepts in mind.  In your header file where you are declaring structures, classes, use `declaration.h`.  When in an object file defining how RTTR should handle each object's members, the metadata, etc., use `registration.h`.  Each header has title comments pertaining to the typical usage of RTTR in each respect.
+
+## Tutorial
+
+This library includes a tutorial (see [Tutorial](tutorial/Tutorial.md)).  Configure the project for building the feature by setting the meson option: `-Dtutorial=enabled`.  Then, follow the linked tutorial.
+
+> NOTE: this requires `json-glib` to also be available in the environment as its library includes a readily-available _to string_ API for easier debugging.
