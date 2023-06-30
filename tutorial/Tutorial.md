@@ -38,3 +38,4 @@ The layout of this directory includes:
 ## Tutorial
 
 [A Basic Structure (steps 1-3 above)](tutorial/doc/01-a-basic-structure.md)
+[Getters, Setters, and Friends (4 above)](tutorial/doc/02-getters-setters-and-friends.md)
