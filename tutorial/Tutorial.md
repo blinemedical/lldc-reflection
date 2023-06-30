@@ -37,6 +37,6 @@ The layout of this directory includes:
 
 ## Tutorial
 
-1. [A Basic Structure (steps 1-3 above)](tutorial/doc/01-a-basic-structure.md)
-2. [Getters, Setters, and Friends (4 above)](tutorial/doc/02-getters-setters-and-friends.md)
-3. [Handling Objects (5, 6, 7)](tutorial/doc/03-handling-objects.md)
+1. [A Basic Structure (steps 1-3 above)](doc/01-a-basic-structure.md)
+2. [Getters, Setters, and Friends (4 above)](doc/02-getters-setters-and-friends.md)
+3. [Handling Objects (5, 6, 7)](doc/03-handling-objects.md)
