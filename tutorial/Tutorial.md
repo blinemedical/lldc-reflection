@@ -10,6 +10,7 @@ This tutorial provides the framework to compile a library and GTest -based appli
 6. Change the storage of the object member to a raw pointer.
 7. Change the storage of the object member to a shared pointer.
 8. Subclass a base message structure and register that subclass.
+9. Leveraging enumerations to strings, values, etc.
 
 ## Getting Started
 
@@ -40,3 +41,4 @@ The layout of this directory includes:
 1. [A Basic Structure (steps 1-3 above)](doc/01-a-basic-structure.md)
 2. [Getters, Setters, and Friends (4 above)](doc/02-getters-setters-and-friends.md)
 3. [Handling Objects (5, 6, 7)](doc/03-handling-objects.md)
+4. [Having Some (Sub)Class (8, 9)](doc/04-having-some-subclass.md)
