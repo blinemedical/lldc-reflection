@@ -11,6 +11,8 @@ This tutorial provides the framework to compile a library and GTest -based appli
 7. Change the storage of the object member to a shared pointer.
 8. Subclass a base message structure and register that subclass.
 9. Leveraging enumerations to strings, values, etc.
+10. Metadata: what does `optional` mean?
+11. Metadata: what about optionally serializing a member if the value matches a reference?
 
 ## Getting Started
 
