@@ -1,6 +1,6 @@
-option('socketio', type: 'boolean', value: 'false',
+option('socketio', type: 'boolean', value: false,
   description: 'If SocketIO-Client C++ is not found, build and use it')
-option('jsonglib', type: 'boolean', value: 'false',
+option('jsonglib', type: 'boolean', value: false,
   description: 'If JsonGLIB is not found, build and use it')
 option('tutorial', type: 'feature', value: 'disabled',
   description: 'Enable if working through the tutorial docs')
