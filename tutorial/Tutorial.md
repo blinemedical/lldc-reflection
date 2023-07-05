@@ -13,6 +13,7 @@ This tutorial provides the framework to compile a library and GTest -based appli
 9. Leveraging enumerations to strings, values, etc.
 10. Metadata: what does `optional` mean?
 11. Metadata: what about optionally serializing a member if the value matches a reference?
+12. Metadata: what does it mean to leave it as a `blob`?  What is a use case?
 
 ## Getting Started
 
