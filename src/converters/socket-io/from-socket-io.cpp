@@ -223,7 +223,7 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
           auto view = var.create_associative_view();
           write_associative_view_recursively(member->get_vector(), view);
         }
-        else if (METADATA::is_blob(local_value_t)) {
+        else if (METADATA::is_blob(prop)) {
           auto blob = member->get_binary();
           if (blob.get())
             var = std::string(blob.get()->c_str());
@@ -232,7 +232,7 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
         break;
       }
       case ::sio::message::flag_object: {
-        if (METADATA::is_blob(value_t)) {
+        if (METADATA::is_blob(prop)) {
           auto blob = member->get_binary();
           if (blob.get())
             var = std::string(blob.get()->c_str());
@@ -256,8 +256,8 @@ from_socket_io_recursively (const sio_object &message, ::rttr::instance obj2)
           }
 
           from_socket_io_recursively(member->get_map(), var);
-          prop.set_value(obj, var);
         }
+        prop.set_value(obj, var);
         break;
       }
       case ::sio::message::flag_null: {
