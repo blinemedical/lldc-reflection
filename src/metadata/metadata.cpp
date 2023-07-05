@@ -64,6 +64,7 @@ is_optional(const ::rttr::property& property, const ::rttr::variant& reference, 
   if (result && has_default) {
     auto md_optional_default = property.get_metadata(metadata::OPTIONAL_DEFAULT);
     temp_matches_reference = (md_optional_default == reference);
+    result = temp_matches_reference;
   }
 
   if (matched_reference)
