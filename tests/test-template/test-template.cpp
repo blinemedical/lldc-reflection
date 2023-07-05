@@ -406,6 +406,31 @@ TEST(Optionals, DefaultedValueType) {
   uut_unref(temp);
 }
 
+TEST(Optionals, EmptyBecauseOptional) {
+  /**
+   * This test verifies that the "to" conversion will succeed even if all of the
+   * object's properties are skipped for one reason or another (i.e., optional):
+   */
+  MaybeEmpty input;
+  uut_type temp = nullptr;
+
+  // Sanity check - non-default value was handled and a valid object was produced.
+  input.value = MaybeEmpty::DEFAULT_VALUE + 1;
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE((temp));
+  EXPECT_TRUE(member_check_function(temp, "value"));
+  uut_unref(temp);
+
+  // When set to the default value, the object will effectively have no members
+  // to insert into the JSON (it will be '{}'), but that should still be permitted
+  // even though the result will be ambiguous on de-serialization.
+  input.value = MaybeEmpty::DEFAULT_VALUE;
+  EXPECT_NO_THROW(temp = to_conversion(input));
+  EXPECT_TRUE((temp));
+  EXPECT_FALSE(member_check_function(temp, "value"));
+  uut_unref(temp);
+}
+
 TEST(StdAny, MapWithAny) {
   /**
    * The object has a parameter, 'properties' which is a std::map<std::string, std::any>.

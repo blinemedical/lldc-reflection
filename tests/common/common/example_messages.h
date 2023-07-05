@@ -300,4 +300,13 @@ struct COMMON_TEST_API
   RTTR_ENABLE();
 };
 
+struct COMMON_TEST_API
+  MaybeEmpty {
+    static const long DEFAULT_VALUE;
+
+    long value = DEFAULT_VALUE;
+
+    RTTR_ENABLE();
+  };
+
 }; // lldc::testing
