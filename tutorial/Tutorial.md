@@ -45,3 +45,5 @@ The layout of this directory includes:
 2. [Getters, Setters, and Friends (4 above)](doc/02-getters-setters-and-friends.md)
 3. [Handling Objects (5, 6, 7)](doc/03-handling-objects.md)
 4. [Having Some (Sub)Class (8, 9)](doc/04-having-some-subclass.md)
+5. [Optional Data Members  (10, 11)](doc/05-optional-data-members.md)
+6. [How to use Blob (12)](doc/06-how-to-use-blob.md)
