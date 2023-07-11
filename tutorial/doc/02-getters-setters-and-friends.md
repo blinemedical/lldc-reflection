@@ -66,7 +66,8 @@ struct FriendSecond {
   private:
   long __member;
 
-  RTTR_REGISTRATION_FRIEND;
+  RTTR_ENABLE();
+  RTTR_REGISTRATION_FRIEND; // <_<
 };
 ```
 
