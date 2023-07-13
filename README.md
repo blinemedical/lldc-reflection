@@ -1,8 +1,10 @@
 # Reflection Library
 
-This dynamic library is a collection of serialization tools written in C++ that utilize RTTR, the reflection library.  The goal is to make handling API structures a trivial matter.
+This dynamic library is a collection of serialization tools written in C++ that utilize [RTTR](https://www.rttr.org/), the runtime reflection library.  The goal is to make handling API structures a trivial matter.
 
 The library's only dependency is against RTTR itself, however its extensions for dealing with messages from other libraries like JsonGlib require the presence of those libraries.  If the library is not found in the environment, that feature is skipped.
+
+This library's [Tutorial](tutorial/Tutorial.md) covers several aspects of RTTR registration that are supported by the conversion logic in this library, however there are many other options and policies available.  Please see that project's [documentation](https://www.rttr.org/doc/master/classes.html) for more information.
 
 ## Building
 
