@@ -26,6 +26,10 @@ namespace lldc::testing {
       throw ::lldc::reflection::exceptions::ReferenceValueComparisonMismatch();
     _subject = subject;
   }
+
+  const uint64_t OptionalMemberMessage::DEFAULT_U64_VALUE = 86;
+
+  const long MaybeEmpty::DEFAULT_VALUE = 32;
 };
 
 
@@ -167,5 +171,10 @@ RTTR_PLUGIN_REGISTRATION {
     .property("vv-int", &T::MessageWithVectors::vv_int)
     .property("v-sptr", &T::MessageWithVectors::v_sptr)
     .property("v-obj", &T::MessageWithVectors::v_obj)
+    ;
+
+  ::rttr::registration::class_<T::MaybeEmpty>("maybe-empty")
+    .property("value", &T::MaybeEmpty::value)
+      (::lldc::reflection::metadata::set_is_optional_with_default(T::MaybeEmpty::DEFAULT_VALUE))
     ;
 };

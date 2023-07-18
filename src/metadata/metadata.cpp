@@ -64,6 +64,7 @@ is_optional(const ::rttr::property& property, const ::rttr::variant& reference, 
   if (result && has_default) {
     auto md_optional_default = property.get_metadata(metadata::OPTIONAL_DEFAULT);
     temp_matches_reference = (md_optional_default == reference);
+    result = temp_matches_reference;
   }
 
   if (matched_reference)
@@ -75,14 +76,6 @@ is_optional(const ::rttr::property& property, const ::rttr::variant& reference, 
 bool
 is_no_serialize(const ::rttr::property &property) {
   auto md = property.get_metadata(metadata::NO_SERIALIZE);
-  if (md.is_valid())
-    return md.to_bool();
-  return false;
-}
-
-template <typename T>
-bool is_blob(const T &rttr_t) {
-  auto md = rttr_t.get_metadata(metadata::BLOB);
   if (md.is_valid())
     return md.to_bool();
   return false;

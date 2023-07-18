@@ -282,14 +282,17 @@ to_json_recursive(const ::rttr::instance &obj2, JsonObject *json_object)
     bool optional = METADATA::is_optional(prop, prop_value, &matches_default);
 
     if (METADATA::is_no_serialize(prop)) {
+      did_write = true;
       continue; // skip it.
     }
 
     if (optional && matches_default) {
+      did_write = true;
       continue; // By implication, skip it.
     }
 
     if (optional && !prop_value) {
+      did_write = true;
       continue; // null-like and it's optional; skip it.
     }
 

@@ -152,7 +152,7 @@ SecondMessage : public ApiMessage {
 struct COMMON_TEST_API
 OptionalMemberMessage : public ApiMessage
 {
-  static const uint64_t DEFAULT_U64_VALUE = 86;
+  static const uint64_t DEFAULT_U64_VALUE;
 
   OptionalMemberMessage() :
     ApiMessage(Subject::optional_member_message),
@@ -181,6 +181,9 @@ OptionalMemberMessage : public ApiMessage
   }
 
   struct Payload {
+    Payload() {}
+    virtual ~Payload() {}
+
     int32_t value;
 
     friend bool operator==(const Payload& lhs, const Payload& rhs) {
@@ -296,5 +299,14 @@ struct COMMON_TEST_API
 
   RTTR_ENABLE();
 };
+
+struct COMMON_TEST_API
+  MaybeEmpty {
+    static const long DEFAULT_VALUE;
+
+    long value = DEFAULT_VALUE;
+
+    RTTR_ENABLE();
+  };
 
 }; // lldc::testing
