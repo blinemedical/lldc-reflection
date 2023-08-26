@@ -45,6 +45,7 @@ common_ldflags = []
 rttr_version = '0.9.6'
 rttr_dep = dependency('rttr',
   version: '>=@0@'.format(rttr_version),
+  modules: ['RTTR::Core'],
   required: false,
   include_type: 'system')
 
