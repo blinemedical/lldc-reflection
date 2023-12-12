@@ -29,7 +29,7 @@ namespace lldc::testing {
 
   const uint64_t OptionalMemberMessage::DEFAULT_U64_VALUE = 86;
 
-  const long MaybeEmpty::DEFAULT_VALUE = 32;
+  const int32_t MaybeEmpty::DEFAULT_VALUE = 32;
 };
 
 

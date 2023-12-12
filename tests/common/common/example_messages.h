@@ -302,9 +302,9 @@ struct COMMON_TEST_API
 
 struct COMMON_TEST_API
   MaybeEmpty {
-    static const long DEFAULT_VALUE;
+    static const int32_t DEFAULT_VALUE;
 
-    long value = DEFAULT_VALUE;
+    int32_t value = DEFAULT_VALUE;
 
     RTTR_ENABLE();
   };
